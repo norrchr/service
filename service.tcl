@@ -326,7 +326,7 @@ namespace eval service {
 			"pre-rehash" {
 				foreach bind [binds *[namespace current]*] {
 					if {$bind == ""} { continue }
-					catch {unbind [lindex [split $bind] 0] [lindex [split $bind] 1] [lindex [split $bind] 2] [lindex [split $bind] 4]}
+					catch {unbind [lindex $bind 0] [lindex $bind 1] [lindex $bind 2] [lindex $bind 4]}
 				}
 				namespace delete [namespace current]
 				save
