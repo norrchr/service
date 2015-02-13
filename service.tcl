@@ -6221,6 +6221,15 @@ namespace eval service {
 		if {![info exists chanflags(P)]} {
 			set chanflags(P) "service_peak peak"
 		}
+		# add m to chanflags for enforcemodes
+		if {![info exists chanflags(m)]} {
+			set chanflags(m) "service_enforcemodes enforcemodes"
+		}
+		# key is enforced via enforcemodes currently
+		# add k to chanflags for enforcekey
+		#if {![info exists chanflags(k)]} {
+		#	set chanflags(k) "service_key enforcekey"
+		#}
 		# import saved automsg lines from the old save format into the new save format
 		foreach channel [channels] {
 			set messages [list]

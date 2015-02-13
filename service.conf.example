@@ -1,0 +1,148 @@
+variable homechan "#"
+variable adminchan "#"
+variable helpchan "#"
+
+channel add $homechan
+channel add $adminchan
+channel add $helpchan
+	
+variable fullpath "[pwd]/scripts/service/service.tcl"; # don't change unless you have too
+
+array set global_user_levels {
+	{admin} {A +A}
+	{administrator} {A +A}
+	{dev} {A +D}
+	{developer} {A +D}
+	{service} {AD +Samo}
+    {owner} {n +anmovf}
+	{master} {nm -n+amovf}
+	{operator} {nm -nm+aovf}
+	{op} {nm -nm+aovf}
+	{voice} {nmo -anmo+gvf}
+	{friend} {nmo -anmo+gvf}
+	{ban} {nm -anmogvf+b}
+	{none} {nm -SADanmogvfb}
+	{clear} {nm -SADanmogvfb}
+}
+
+array set channel_user_levels {
+    {owner} {n +anmovf}
+	{master} {nm -n+amovf}
+	{operator} {nm -nm+aovf}
+	{op} {nm -nm+aovf}
+	{voice} {nmo -anmo+gvf}
+	{friend} {nmo -anmo+gvf}
+	{ban} {nm -anmogvf+b}
+	{none} {nm -anmogvfb}
+	{clear} {nm -anmogvfb}
+}
+	
+if {![array exists onjoin]} {
+	array set onjoin {}
+}
+
+if {![array exists whois]} {
+	array set whois {}
+}
+
+if {![array exists saveops]} {
+	array set saveops {}
+}
+	
+if {![array exists errorcount]} {
+	array set errorcount {}
+}
+	
+if {![array exists topic]} {
+	array set topic {}
+}
+	
+if {![array exists clonescan]} {
+	array set clonescan {
+		"maxclones" "5"
+		"hosttype" "1"
+	}
+}
+
+if {![array exists onjoin]} {
+	array set onjoin {}
+}
+	
+if {![array exists adduser]} {
+    array set adduser {}
+}
+	
+variable kickmsg
+array set kickmsg {
+	"protkick" "You are not allowed to :violate: on :channel: - (ID: :id:) - (by :homechan:)"
+	"userkick" "You were kicked on :channel: by :nickname: - Reason: :reason: - (ID: :id:)"
+	"badchan" "Killed (:channel: (Detected on bad channel(s) ':badchan:' - (ID: :id:)))"
+	"authban" "Killed (:channel: (Your authname ':authname:' is banned! - (ID: :id:)))"
+	"userban" "You are banned from :channel: by :nickname: - (Reason: :reason:) - (ID: :id:)"
+	"known" "Killed (:channel: (Authorized users only! - (ID: :id:)))"
+	"badword" "Killed (:channel: (Detected :found: badword(s): :badword: - (ID: :id:)))"
+	"antiadvertise" "Killed (:channel: (Advertising in :channel: is disallowed! - (ID: :id:)))"
+	"clonescan" "Killed (:channel: (Too many clones from your host ':hostname:' (:clones:/:maxclones:) - (ID: :id:)))"
+	"gban" "You are GLOBAL BANNED by :homechan: staff - (Reason: :reason:) - (Global-ID: :id:)"
+	"defaultban" "You are BANNED from this channel"
+}
+
+variable defaultreason "none specified"
+
+variable bantime
+array set bantime {
+	"modeprot" "120"
+	"kickprot" "60"
+	"spamscan" "5"
+	"clonescan" "10"
+	"default" "30"
+}
+	
+variable vipskin "15,1•12 VIP: :nickname: ( :hostname: ) 15,1•"
+variable vipmode "+"
+	
+variable trigger "\$"
+variable triggers { $ ! ? & * % ^ - + ~ }
+	
+variable flood
+if {[array exists flood]} {
+	array unset flood
+}
+	
+array set flood {
+	"lockmodes" "mr"
+	"massmodes" "mir"
+}
+	
+if {[array exists chanflags]} {
+	array unset chanflags
+}
+
+variable welcomeskin "\[:channel: - :date: - :time:\] Welcome :nickname: (:hostname:) to our channel! Please stay to support us! (JoinID: #:id:)"
+
+array set chanflags {
+	"o" "service_ao auto-op"
+	"v" "service_av auto-voice"
+	"p" "service_prot protection"
+	"h" "service_prot_hard hardprotection"
+	"b" "service_bitchmode bitchmode"
+	"B" "service_badword badwords"
+	"s" "service_spamscan spamscan"
+	"w" "service_welcome welcome"
+	"t" "service_topic_safe topicsave"
+	"f" "service_topic_force forcetopic"
+	"C" "service_clonescan clonescan"
+	"K" "service_known knownonly"
+	"e" "enforcebans enforcebans"
+	"d" "dynamicbans dynamicbans"
+	"V" "service_vip vip"
+	"a" "service_authban authbans"
+	"A" "service_antiadvertise antiadvertise"
+	"c" "service_badchan badchan"
+	"F" "service_flyby flyby"
+	"l" "service_autolimit autolimit"
+}
+	
+variable netsplit_start "A netsplit has been detected - Some functions have been disabled."
+	
+variable netsplit_end "The netsplit is now consider over after :time: - All functions enabled again."
