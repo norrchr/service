@@ -1,5 +1,6 @@
 # eggdrop service script: service.tcl
 service modular-git BETA
+beta version, use at your own risk, script may contain bugs which may crash your bot, or totally bork your irc channel.
 
 # Installation:
 
