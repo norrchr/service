@@ -1,4 +1,4 @@
-# service
+# eggdrop service script: service.tcl
 service modular-git BETA
 
 # Installation:
