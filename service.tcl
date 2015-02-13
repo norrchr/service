@@ -2118,7 +2118,7 @@ namespace eval service {
 					variable script; variable author; variable version; variable linecount
 					helper_xtra_set "lastcmd" $handle "$channel ${lastbind}$command $text"
 					set modules [loadedmodules]
-					puthelp "NOTICE $nickname :$script v${version} by $author loaded! (Line Count: $linecount) ([llength $modules] module(s) loaded[expr {[llength $modules]>0  ? ": [join $modules ", "]" : ""])."
+					puthelp "NOTICE $nickname :$script v${version} by $author loaded! (Line Count: $linecount) ([llength $modules] module(s) loaded[expr {[llength $modules]>0  ? ": [join $modules ", "]" : ""}])."
 				}
 				"invite" {
 					if {![matchattr $handle nm|nmo $channel]} {
@@ -6143,7 +6143,7 @@ namespace eval service {
 		set modules [loadedmodules]
 		set end [clock clicks]
 		set ms [expr {(round($end) - round($start))/1000.0}]ms
-		putlog "$copyright - [llength $modules] module(s) loaded[expr {[llength $modules]>0  ? ": [join $modules ", "]" : ""] - loaded in $ms!!"
+		putlog "$copyright - [llength $modules] module(s) loaded[expr {[llength $modules]>0  ? ": [join $modules ", "]" : ""}] - loaded in $ms!!"
 	}
 	
 	proc kickban {nickname channel type {reason {}}} {
