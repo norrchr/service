@@ -12,6 +12,12 @@ edit service.conf, changing the homechan/adminchan/helpchan variables. This is t
 
 Edit your eggdrops config file, and add 'source scripts/service/service.tcl' to the end of it. If the bot is loaded, rehash it, otherwise start your bot.
 
+# Upgrade:
+
+cd to scripts/service/ and type: git pull
+
+this will download all the latest script updates, then rehash your eggdrop.
+
 # Errors:
 
 Please post a bug report, including as much information at possible to the issue tracker. errorInfo output will be helpful. 
