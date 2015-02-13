@@ -4,6 +4,15 @@ namespace eval debug {
 
 	bind pub ADn| "${::nick}::" [namespace current]::onchanmsg
 	bind pub ADn| "${::altnick}::" [namespace current]::onchanmsg
+	
+	proc __unload__ {} {
+		variable version
+		foreach bind [binds *[namespace current]*] {
+			if {$bind == ""} { continue }
+			catch {unbind [lindex [split $bind] 0] [lindex [split $bind] 1] [lindex [split $bind] 2] [lindex [split $bind] 4]}
+		}
+		putlog "[namespace current] version $version unloaded."
+	}
 
 	proc onchanmsg {nickname hostname handle channel argv {bind ""}} {
 		if {![matchattr $handle ADn|]} { return }

@@ -43,6 +43,15 @@ namespace eval authname {
 	bind sign - {*} [namespace current]::onsign
 	bind splt - {*} [namespace current]::onsign
 	
+	proc __unload__ {} {
+		variable version
+		foreach bind [binds *[namespace current]*] {
+			if {$bind == ""} { continue }
+			catch {unbind [lindex [split $bind] 0] [lindex [split $bind] 1] [lindex [split $bind] 2] [lindex [split $bind] 4]}
+		}
+		putlog "[namespace current] version $version unloaded."
+	}
+	
 	proc addauthname {authname} {
 		if {[validuser $authname]} {
 			setuser $authname XTRA isauth 1; return 1
