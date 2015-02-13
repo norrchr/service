@@ -1,0 +1,165 @@
+namespace eval whois {
+
+	variable version "1.4.8"
+
+	namespace export delayedwhois dodelayedwhois dowhois stripchanchars processargs
+	namespace ensemble create
+	
+	variable delay "5"
+
+	# 319 330 318
+	bind raw - {318} [namespace current]::onwhois
+	bind raw - {319} [namespace current]::onwhois
+	bind raw - {330} [namespace current]::onwhois
+
+	array set check {}
+	array set timer {}
+	array set results {}
+	
+	variable globnonblock [list {authname processauthname :results:}]
+	variable globblock [list]
+	
+	variable channonblock [list]
+	variable chanblock [list {authban processchannel :channel: :results:} {badchan processchannel :channel: :results:} {vip processchannel :channel: :results:}]
+
+	proc dowhois {nickname channel checks {extended 0}} {
+		variable check
+		set nickname [string tolower $nickname]
+		set channel [string tolower $channel]
+		if {![validchan $channel]} { return 0 }
+		if {![info exists check(${nickname},${channel})]} {
+			set chks [list]
+			foreach chk $checks {
+				if {$chk == ""} { continue }
+				set chk [string tolower $chk]
+				if {[string equal -nocase "authban" $chk] || [string equal -nocase "badchan" $chk] || [string equal -nocase "vip" $chk]} { lappend chks $chk }
+			}
+			if {[llength $chks] <= 0} { return 0 }
+			set check(${nickname},${channel}) $chks
+		}
+		putserv "WHOIS $nickname [expr {$extended==1 ? $nickname : ""}]"
+		return 1
+	}
+	
+	proc delayedwhois {nickname channel checks {extended 0}} {
+		variable check; variable delay
+		set nickname [string tolower $nickname]
+		set channel [string tolower $channel]
+		if {![validchan $channel]} { return 0 }
+		if {![info exists check(${nickname},${channel})]} {
+			set chks [list]
+			foreach chk $checks {
+				if {$chk == ""} { continue }
+				set chk [string tolower $chk]
+				if {[string equal -nocase "authban" $chk] || [string equal -nocase "badchan" $chk] || [string equal -nocase "vip" $chk]} { lappend chks $chk }
+			}
+			if {[llength $chks] <= 0} { return 0 }
+			set check(${nickname},${channel}) $chks
+		}
+		if {[info exists timer($nickname)] && [lsearch -exact [utimers] $timer($nickname)] >= 0} { return 1 }
+		set timer($nickname) [utimer $delay [list service whois dodelayedwhois $nickname $extended]]
+		#putlog "Delayed whois set for $nickname @ $channel -> $check(${nickname},${channel})"
+		return 1
+	}
+	
+	proc dodelayedwhois {nickname extended} {
+		variable check; variable timer
+		if {[info exists timer($nickname)]} {
+			catch {killutimer $nickname}
+			unset timer($nickname)
+		}
+		if {[llength [array names check ${nickname},*]] > 0} {
+			putserv "WHOIS $nickname [expr {$extended==1 ? $nickname : ""}]"
+			#putlog "WHOIS sent for $nickname"
+		}
+	}
+	
+	proc stripchanchars {channels {strip ~}} {
+		set chans [list]
+		set strip "\{[join [split [string map {+ \+} $strip] ""] |]\}"
+		foreach channel $channels {
+			if {$channel == ""} { continue }
+			regsub -all $strip $channel "" channel
+			lappend chans $channel
+		}
+		return $chans
+	}
+
+	proc onwhois {from raw arg} {
+		variable check; variable results
+		set nickname [string tolower [lindex [split $arg] 1]]
+		if {[llength [array names check ${nickname},*]] <= 0} { return }
+		#putlog "WHOIS: $from -> $raw -> $arg"
+		if {$raw == "319"} {
+			# channels
+			set results($nickname,channels) "[string trimleft [lrange $arg 2 end] :]"; return
+		} elseif {$raw == "330"} {
+			# authname
+			set results($nickname,authname) "[lindex [split $arg] 2]"; return
+		} elseif {$raw == "318"} {
+			# end of WHOIS
+			variable globnonblock; variable chanblock
+			set channels [stripchanchars $results($nickname,channels) "~"]; unset results($nickname,channels)
+			if {[info exists results($nickname,authname)]} {
+				set authname $results($nickname,authname)
+				unset results($nickname,authname)
+			} else {
+				set authname ""				
+			}
+			array set res {
+				"realname" "N/A"
+				"idletime" "0"
+				"signon" "0"
+				"isoper" "0"
+			}
+			set res(nickname) $nickname
+			set res(hostname) [getchanhost $nickname]
+			set res(authname) $authname
+			set res(channels) \{$channels\}
+			foreach ch $globnonblock {
+				set chk [lindex [split $ch] 0]; set func [lindex [split $ch] 1]; set args [join [lrange $ch 2 end]]
+				if {$chk == "" || $func == ""} { continue }
+				#putlog "Calling globnonblock $nickname @ $chk -> $func"
+				#putlog "ARGS: $args -> [processargs $args [array get res]]"
+				service $chk $func [expr {$args == "" ? "" : [processargs $args [array get res]]}]
+			}
+			# globblock goes here
+			foreach channel [channels] {
+				if {![info exists check(${nickname},${channel})]} { continue }
+				set chks $check(${nickname},${channel}); unset check(${nickname},${channel})
+				if {$channel == "" || ![botonchan $channel] || ![onchan $nickname $channel]} { continue }
+				# channonblock goes here
+				foreach ch $chanblock {
+					set chk [lindex [split $ch] 0]; set func [lindex [split $ch] 1]; set args [join [lrange $ch 2 end]]
+					#putlog "$chk -> $func -> $args"
+					if {$chk == "" || $func == ""} { continue }
+					if {[lsearch -exact [string tolower $chks] [string tolower $chk]] == -1} { continue }
+					set res(channel) $channel	
+					#putlog "Calling chanblock $nickname @ $chk -> $func"
+					#putlog "ARGS: $args -> [processargs $args [array get res]]"
+					if {[set r [service $chk $func [expr {$args == "" ? "" : [processargs $args [array get res]]}]]]} {
+						#putlog "BLOCKED? $r"; break
+					} else {
+						#putlog "BLOCKED? $r"; continue
+					}
+				}
+			}
+			#putlog "END of WHOIS for $nickname"
+		}
+	}
+
+	proc processargs {arg arr} {
+		array set res $arr
+		if {[llength [array names res]] <= 0} { return $arg }
+		set map [list]
+		foreach {ele val} [array get res] {
+			if {$ele == "" || $val == ""} { continue }
+			lappend map ":${ele}: $val"
+		}
+		lappend map ":results: \{[array get res]\}"
+		return [string map [join $map] $arg]
+	}
+	
+	putlog "[namespace current] version $version loaded."
+
+}

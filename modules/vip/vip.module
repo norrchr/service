@@ -1,0 +1,116 @@
+namespace eval vip {
+
+	variable version "1.2.8"
+
+	namespace export processchannel
+	namespace ensemble create
+
+	variable vipskin "Welcome to :channel: :nickname: - You will receive :status: due to being vip on :count: channel(s) - # :id:"
+	variable vipmode "+"
+
+	array set vipchannels {}
+	
+	foreach channel [channels] {
+		if {$channel == ""} { continue }
+		set channel [string tolower $channel]
+		foreach vchan [channel get $channel service_vipc] {
+			if {$vchan == ""} { continue }
+			set vmode [string range $vchan 0 0]
+			set vchan [string tolower [string range $vchan 1 end]]
+			set vipchannels($channel,$vchan) "$vmode"
+		}
+	}
+	
+	proc processchannel {args} {
+		variable vipskin; variable vipmode; variable vipchannels
+		set args [join $args]
+		#putlog "VIP: $args"
+		set channel [string tolower [lindex [split $args] 0]]
+		#putlog "VIP channel: $channel"
+		array set results [lrange $args 1 end]
+		set nickname $results(nickname)
+		set authname $results(authname)
+		set hostname $results(hostname)
+		set channels [join $results(channels)]
+		#putlog "$nickname / $authname / $hostname / $channels"
+		if {![onchan $nickname $channel]} { return 0 }
+		if {![channel get $channel service_vip]} { return 0 }
+		if {[channel get $channel service_netsplit]} {
+			if {[set service [service::getnetworkservice $channel chanserv]] eq ""} { return 0 }
+			channel set $channel service_servicebot $service
+			chattr [nick2hand $service] +S|+S $channel
+			channel set $channel -service_netsplit
+		}
+		if {[llength [array names vipchannels ${channel},*]] <= 0} { return 0 }
+		if {[channel get $channel service_vip_authed] && $authname == ""} { return 0 };# 0 or 1?
+		if {[channel get $channel service_vip_authbl] && $authname != "" && [lsearch [channel get $channel service_vip_authblist] $authname] != -1} { return 0 }; # 0 or 1?
+		set dm 0; set cm [channel get $channel service_vip_chanmode]; set match [list]
+		#putlog "vip foreach for $nickname @ $channel"
+		foreach vchan $channels {
+			if {$vchan == "" || [string equal -nocase $vchan $channel]} { continue }
+			set vmode [string range $vchan 0 0]
+			set vchan [string tolower [string range $vchan 1 end]]
+			#putlog "vmode => $vmode / vchan => $vchan"
+			if {![info exists vipchannels($channel,$vchan)]} { continue }
+			#putlog "$vchan match"
+			set mode $vipchannels(${channel},${vchan})
+			if {$mode == "@" && $vmode == "@"} {
+				lappend match ${vmode}${vchan}; set dm 1
+			} elseif {$mode == "+" && ($vmode == "@" || $vmode == "+")} {
+				lappend match ${vmode}${vchan}
+			}
+		}
+		if {[llength $match] >= 1} {
+			#putlog "[llength $match] vip match(s)"
+			channel set $channel service_vipid "[set vid [expr {[channel get $channel service_vipid] + 1}]]"
+			if {[set skin [channel get $channel service_vipskin]] == ""} {
+				channel set $channel service_vipskin "[set skin $vipskin]"
+			}
+			if {[channel get $channel service_vip_dynamicmode]} {
+				if {$dm} {
+					set mode "@"
+				} else {
+					set mode "+"
+				}
+			} elseif {[set mode [channel get $channel service_vipm]] == ""} {
+				channel set $channel service_vipm "[set mode $vipmode]"
+			}
+			if {$cm} {
+				set match [string map {@ {} + {}} $match]
+			}
+			#putlog "make skin from template"
+			set map [list]
+			lappend map ":nickname: $nickname"
+			lappend map	":hostname: $hostname"
+			lappend map ":authname: $authname"
+			lappend map ":channel: $channel"
+			lappend map ":vipchannel: [join [lindex [split $match] [rand [llength $match]]]]"
+			lappend map ":vipchannels: [join $match " "]"
+			lappend map ":count: [llength $match]"
+			lappend map ":status: $mode"
+			lappend map ":id: $vid"
+			set skin [string map [join $map] $skin]
+			#putlog "skin => $skin"
+			if {[channel get $channel service_vips]} {
+				#putlog "got service_vips"
+				if {[channel get $channel service_vipn]} {
+					putserv "NOTICE $nickname :$skin"
+				} else {
+					putserv "PRIVMSG $channel :$skin"
+				}
+			}
+			if {$mode == "@"} {
+				#putlog "VIP: MODE $channel +ov $nickname $nickname"
+				putserv "MODE $channel +ov $nickname $nickname"
+			} else {
+				#putlog "VIP: MODE $channel +v $nickname"
+				putserv "MODE $channel +v $nickname"
+			}
+			return 1
+		}
+		return 0
+	}
+	
+	putlog "[namespace current] version $version loaded."
+	
+}

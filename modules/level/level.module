@@ -1,0 +1,101 @@
+namespace eval level {
+
+	variable version "1.0"
+	
+	namespace export *
+	namespace ensemble create
+	
+	array set global {
+		{admin} {An -D+A}
+		{administrator} {An -D+A}
+		{dev} {A +AD}
+		{developer} {A +AD}
+		{service} {ADn +Samo}
+		{owner} {n +anmovf}
+		{master} {nm -ADn+amovf}
+		{operator} {nm -ADnm+aovf}
+		{op} {nm -ADnm+aovf}
+		{voice} {nm -ADanmo+gvf}
+		{friend} {nm -ADanmo+gvf}
+		{ban} {nm -ADanmogvf+b}
+		{none} {nm -SADanmogvfb}
+		{clear} {nm -SADanmogvfb}
+	}
+
+	array set channel {
+		{owner} {ADnm|n +anmovf}
+		{master} {ADnm|nm -n+amovf}
+		{operator} {ADnm|nm -nm+aovf}
+		{op} {ADnm|nm -nm+aovf}
+		{voice} {ADnm|nm -anmo+gvf}
+		{friend} {ADnm|nm -anmo+gvf}
+		{ban} {ADnm|nm -anmogvf+b}
+		{none} {ADnm|nm -anmogvfb}
+		{clear} {ADnm|nm -anmogvfb}
+	}
+	
+	# level channel|global is|set|get|flags|list ?channel? ?handle/level?
+	
+	proc global {level} {
+		variable global
+		return [expr {[info exists global([string tolower $level])] ? $global([string tolower $level]) : ""}]
+	}
+	
+	proc channel {level} {
+		variable channel
+		return [expr {[info exists channel([string tolower $level])] ? $channel([string tolower $level]) : ""}]
+	}
+	
+	# is global handle ?level?
+	# is channel handle channel ?level?
+	
+	proc levels {type} {
+		set level [string tolower $level]
+		if {![string equal "global" $type] || ![string equal "channel" $type]} { return }
+		variable $level
+		return [array names $level]
+	}
+	
+	proc is {type handle args} {
+		if {![validuser $handle]} { return }
+		if {[string equal -nocase "global" $type]} {
+			variable global
+			set level [lindex [split $args] 0]
+			if {$level == "" || $level == "*"} {
+				return [chattr $handle]
+			} elseif {![info exists global($level)]} {
+				return
+			} else {
+				return [matchattr $handle $global($level)]
+			}
+			return
+		} elseif {[string equal -nocase "channel" $type]} {
+			variable channel
+			set chan [join [lindex [split $args] 0]]
+			set level [join [lindex [split $args] 1]]
+			puts "level: [join $args] - $chan - $level"
+			if {![validchan $chan]} { return }
+			if {$level == "" || $level == "*"} {
+				return [chattr $handle $chan]
+			} elseif {![info exists channel($level)]} {
+				return
+			} else {
+				return [matchattr $handle $channel($level) $chan]
+			}
+			return
+		} else {
+			return
+		}
+	}
+	
+	proc list {type {level "*"}} {
+		if {![string equal -nocase "global" $type] || [string equal -nocase "channel" $type]} { return }
+		variable $type
+		return [array get $type $level]			
+	}
+	
+	putlog "[namespace current] version $version loaded."
+	
+}
+
+namespace export level

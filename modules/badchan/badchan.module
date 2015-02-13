@@ -1,0 +1,56 @@
+namespace eval badchan {
+
+	namespace export processchannel
+	namespace ensemble create
+
+	variable version "1.2"
+
+	variable kickmsg "Your present on :count: badchannel(s) (:badchan:) and therefore banned from :channel: - ID: :id:"
+
+	proc processchannel {args} {
+		variable kickmsg
+		set args [join $args]
+		set channel [string tolower [lindex [split $args] 0]]
+		array set results [lrange $args 1 end]
+		set nickname $results(nickname)
+		set hostname $results(hostname)
+		set channels $results(channels)
+		set handle [nick2hand $nickname]	
+		if {[channel get $channel service_badchan] && [set bchans [string tolower [channel get $channel service_badchans]]] != "" && ![matchattr $handle nmobBFS|nmovfFS $channel]} {
+			set list [list]
+			foreach chan $channels {
+				if {$chan == ""} { continue }
+				set chan "#[lindex [split [string tolower $chan] #] 1]"
+				if {[lsearch -exact $bchans $chan] == -1} { continue }
+				lappend list $chan
+			}
+			if {[llength $list] <= 0} { return 0 }
+			channel set $channel service_bid "[set id [expr {[channel get $channel service_bid] + 1}]]"
+			if {[set kmsg [channel get $channel service_kickmsg_badchan]] == ""} {
+				channel set $channel service_kickmsg_badchan "[set kmsg $kickmsg]"
+			}
+			set map [list]
+			lappend map ":badchan: [join [lindex [split $list] [rand [llength $list]]]]"
+			lappend map ":badchans: [join $list " "]"
+			lappend map ":count: [llength $list]"
+			lappend map ":channel: $channel"
+			lappend map ":id: $id"
+			set kmsg [string map [join $map] $kmsg]
+			set banmask [expr {[string equal -nocase *.users.quakenet.org $hostname] ? "*!*@[lindex [split $hostname @] 1]" : "*!*[string trimleft $hostname ~]"}]
+			if {[botisop $channel] && [onchan $nickname $channel]} {
+				if {$banmask == "*!*@" || $banmask == "*!*@*" || $banmask == "*!**@*" || $banmask == "*!**@"} {
+					putquick "KICK $channel $nickname :$kmsg"
+				} else {
+					putquick "MODE $channel -o+b $nickname $banmask"
+					putquick "KICK $channel $nickname :$kmsg"
+					utimer 120 [list pushmode $channel -b $banmask]
+				}
+			}
+			return 1
+		}
+		return 0
+	}
+	
+	putlog "[namespace current] version $version loaded."
+	
+}
