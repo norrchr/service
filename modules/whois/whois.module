@@ -163,3 +163,5 @@ namespace eval whois {
 	putlog "[namespace current] version $version loaded."
 
 }
+
+namespace export whois

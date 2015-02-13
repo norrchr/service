@@ -2,7 +2,7 @@ namespace eval debug {
 	
 	variable version "2.2"
 
-	bind pub ADn| "${::botnick}::" [namespace current]::onchanmsg
+	bind pub ADn| "${::nick}::" [namespace current]::onchanmsg
 	bind pub ADn| "${::altnick}::" [namespace current]::onchanmsg
 
 	proc onchanmsg {nickname hostname handle channel argv {bind ""}} {

@@ -109,7 +109,7 @@ namespace eval service {
 			}
 		} else {
 			# is a name
-			if {![file exists [set path scripts/service/modules/${module}/${module}.tcl]]} {
+			if {![file exists [set path scripts/service/modules/${module}/${module}.module]]} {
 				putlog "${module} can not find module path: $path"; return -1
 			} elseif {[ismodule $module]} {
 				# reload module

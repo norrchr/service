@@ -45,3 +45,5 @@ namespace eval authban {
 	putlog "[namespace current] version $version loaded."
 	
 }
+
+namespace export authban

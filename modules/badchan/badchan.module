@@ -54,3 +54,5 @@ namespace eval badchan {
 	putlog "[namespace current] version $version loaded."
 	
 }
+
+namespace export badchan

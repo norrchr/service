@@ -114,3 +114,5 @@ namespace eval vip {
 	putlog "[namespace current] version $version loaded."
 	
 }
+
+namespace export vip
