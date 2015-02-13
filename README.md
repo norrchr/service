@@ -6,7 +6,9 @@ service modular-git BETA version, use at your own risk, script may contain bugs 
 cd to your eggdrop's scripts directory, and type: git clone https://github.com/r0t3n/service.git
 
 cd service
+
 cp -f service.conf.example service.conf
+
 
 edit service.conf, changing the homechan/adminchan/helpchan variables. This is the minimal setup, you may go through and change the default kickmsg values, but generally dont touch anything else, especially the chanflags array.
 
@@ -25,6 +27,7 @@ Please post a bug report, including as much information at possible to the issue
 # Help:
 
 Contact r0t3n via quakenet.org channel #r0t3n
+
 Webchat: http://webchat.quakenet.org/?channels=#r0t3n
 
 # Feature requests
