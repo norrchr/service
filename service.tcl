@@ -495,7 +495,7 @@ namespace eval service {
 					if {[string equal -nocase "type" $key] && [string equal -nocase "channel" $value]} { set value "chan" }
 					if {[string equal -nocase "flags" $key] && $value == ""} { set value "|" }
 					if {$value == ""} { continue }
-					set cmdhelp($section,$key) [string map [join $map] $value]
+					set cmdhelp($section,$key) [join [string map [join $map] $value]]
 				}
 				helper_reg_cmd $section $cmdhelp($section,type) $cmdhelp($section,flags)
 			}
