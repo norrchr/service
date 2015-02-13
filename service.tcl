@@ -5,7 +5,7 @@ namespace eval service {
 	variable start [clock clicks]
 	
 	variable script [lindex [split [info script] /] end]
-	variable version "5.0.0.0 AUTH-MODULAR-GIT-BETA"
+	variable version "5.0.1.0 AUTH-MODULAR-GIT-BETA"
 	variable author "r0t3n aka Eagle \( #r0t3n \)"    
 	variable copyright "$script - v${version} - $author"
 	
@@ -2117,7 +2117,8 @@ namespace eval service {
 				"version" {
 					variable script; variable author; variable version; variable linecount
 					helper_xtra_set "lastcmd" $handle "$channel ${lastbind}$command $text"
-					puthelp "NOTICE $nickname :$script v${version} by $author loaded! (Line Count: $linecount)."
+					set modules [loadedmodules]
+					puthelp "NOTICE $nickname :$script v${version} by $author loaded! (Line Count: $linecount) ([llength $modules] module(s) loaded[expr {[llength $modules]>0  ? ": [join $modules ", "]" : ""])."
 				}
 				"invite" {
 					if {![matchattr $handle nm|nmo $channel]} {
@@ -6139,9 +6140,10 @@ namespace eval service {
 	proc loaded {} {
 		variable start; variable copyright
 		loadmodules
+		set modules [loadedmodules]
 		set end [clock clicks]
 		set ms [expr {(round($end) - round($start))/1000.0}]ms
-		putlog "$copyright - loaded in $ms!!"
+		putlog "$copyright - [llength $modules] module(s) loaded[expr {[llength $modules]>0  ? ": [join $modules ", "]" : ""] - loaded in $ms!!"
 	}
 	
 	proc kickban {nickname channel type {reason {}}} {
