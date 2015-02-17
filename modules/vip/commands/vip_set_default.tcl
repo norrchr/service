@@ -1,0 +1,4 @@
+proc vip_set_default {channel nickname handle lastbind text} {
+	putserv "NOTICE $nickname :Vip-skin is: \002[expr {[channel get $channel service_vips] ? "enabled" : "disabled"}]\002. Vip-notice is: \002[expr {[channel get $channel service_vipn] ? "enabled" : "disabled"}]\002. Vip-authed is: \002[expr {[channel get $channel service_vip_authed] ? "enabled" : "disabled"}]\002. Vip-chanmode is: \002[expr {[channel get $channel service_vip_chanmode] ? "enabled" : "disabled"}]\002. Vip-dynamicmode is: \002[expr {[channel get $channel service_vip_dynamicmode] ? "enabled" : "disabled"}]\002."
+	putserv "NOTICE $nickname :SYNTAX: $lastbind skin|notice|authed|chanmode|dynamicmode ?on|off|status?."
+}
