@@ -17,148 +17,11 @@ namespace eval service {
 		putlog "${script}: Successfully loaded inifile package."
 	}
 	
-	# from http://wiki.tcl.tk/1474
-	proc globr {{dir .} args} {
-		set res {}
-		foreach i [lsort [glob -nocomplain -dir $dir *]] {
-			if {[file isdirectory $i]} {
-				eval [list lappend res] [eval [linsert $args 0 globr $i]]
-			} else {
-				if {[llength $args]} {
-					foreach arg $args {
-						if {[string match $arg $i]} {
-							lappend res $i
-							break
-						}
-					}
-				} else {
-					lappend res $i
-				}
-			}
-		}
-		return $res
-	}
+	# module functions
+	source scripts/service/modules/functions.tcl
 	
-	proc loadedmodules {} {
-		set loaded [list]
-		set modules [globr scripts/service/modules/ *.module]
-		foreach module $modules {
-			if {$module eq ""} { continue }
-			set module [lindex [split [file tail $module] .] 0]
-			if {[ismodule $module]} {
-				lappend loaded $module
-			}
-		}
-		return $loaded
-	}
-	
-	proc availablemodules {} {
-		set mods [list]
-		set modules [globr scripts/service/modules/ *.module]
-		foreach module $modules {
-			if {$module eq ""} { continue }
-			lappend mods [lindex [split [file tail $module] .] 0]
-		}
-		return $mods
-	}		
-	
-	proc loadmodules {} {
-		set modules [globr scripts/service/modules/ *.module]
-		if {[llength $modules] <= 0} {
-			putlog "No service modules detected"; return
-		} else {
-			putlog "Detected [llength $modules] module(s): [join $modules ", "]"
-			foreach module $modules {
-				if {$module eq ""} { continue }
-				set name [lindex [split [file tail $module] .] 0]
-				putlog "Attempting to load '$name' module (Path: $module):"
-				if {[catch {source $module} err]} {
-					putlog "Error loading module '$name' (Path: $module):"
-					foreach li $err {
-						putlog "${name} error: $li"
-					}
-					putlog "${name} end of error."
-				} else {
-					putlog "${name} module successfully loaded."
-				}
-			}
-		}
-		namespace ensemble create
-	}
-	
-	proc loadmodule {module} {
-		set module [string tolower $module]
-		if {[string match "*/*" $module]} {
-			if {![file exists $module]} {
-				set name [lindex [split [file tail $module] .] 0]
-				putlog "Path does not exist: $path"; return -1
-			} elseif {[ismodule $name]} {
-				# reload module
-				unloadmodule $name
-				loadmodule $module
-			} else {
-				if {[catch {source $module} err]} {
-					putlog "Error loading module '$name' (Path: $module):"
-					foreach li $err {
-						putlog "${name} error: $li"
-					}
-					putlog "${name} end of error."; return 0
-				} else {
-					putlog "${name} module successfully loaded."; return 1
-				}
-			}
-		} else {
-			# is a name
-			if {![file exists [set path scripts/service/modules/${module}/${module}.module]]} {
-				putlog "${module} can not find module path: $path"; return -1
-			} elseif {[ismodule $module]} {
-				# reload module
-				unloadmodule $module
-				loadmodule $module
-			} else {
-				if {[catch {source $path} err]} {
-					putlog "Error loading module '$module' (Path: $path):"
-					foreach li $err {
-						putlog "${module} error: $li"
-					}
-					putlog "${module} end of error."; return 0
-				} else {
-					putlog "${module} module successfully loaded."; return 1
-				}
-			}
-		}
-		namespace ensemble create
-		return -2
-	}		
-	
-	proc unloadmodule {module} {
-		set module [string tolower $module]
-		if {[namespace exists $module]} {
-			catch {${module}::__unload__}
-			namespace delete $module
-			return 1
-		} else {
-			return 0
-		}
-	}
-	
-	proc ismodule {module} {
-		set module [string tolower $module]
-		return [namespace exists $module]
-	}
-		
-	array set networkservices {
-		{Q} {chanserv}
-		{S} {spamscan}
-		{P} {proxyscan}
-		{U} {gamebot}
-		{H} {helpbot}
-		{T} {trojanscan}
-		{WOWBOT} {gameserv}
-		{SNAILBOT} {gameserv}
-		{CATBOT} {gameserv}
-		{FISHBOT} {gameserv}
-	}
+	# network services
+	source scripts/service/helpers/networkservices.tcl
 	
 	array set cmdlist {}
 	array set cmdhelp {}
@@ -181,8 +44,6 @@ namespace eval service {
 	variable linecount [llength [split [read -nonewline $file] \n]]
 	close $file
 	
-	bind evnt - {*} [namespace current]::onevnt
-	
 	bind pubm - {*} [namespace current]::onpubm
 	#bind msg nm {rejoin} [namespace current]::onmsg onmsg_rejoin
 	
@@ -199,9 +60,6 @@ namespace eval service {
 	bind need - {*} [namespace current]::onneed
 	bind flud - {*} [namespace current]::onflud
 	
-	bind time - {?0 * * * *} [namespace current]::autosave
-	bind time - {?5 * * * *} [namespace current]::autosave
-	
 	bind time - {* * * * *} [namespace current]::automsg
 
 	# The main flag, if this flag is not set, the whole script won't work
@@ -215,15 +73,6 @@ namespace eval service {
 	setudef flag service_ao; # The auto-op flag
 	setudef flag service_av; # The auto-voice flag
 	setudef flag service_autolimit; # The auto-limit flag
-	setudef flag service_authban; # The authbans flag
-	setudef flag service_badchan; # The badchannel flag
-	setudef flag service_vip; # The vip flag
-	setudef flag service_vips; # The show vip skin flag
-	setudef flag service_vipn; # The notice vip skin flag
-	setudef flag service_vip_authed; # The vip authed only flag
-	setudef flag service_vip_authbl; # the vip auth blacklist flag
-	setudef flag service_vip_chanmode; # the vip show vip channel status flag
-	setudef flag service_vip_dynamicmode; # turns vip mode dynamic, user is given the highest status found from vipchannels
 	setudef flag service_clonescan; # The onjoin clonescan flag
 	setudef flag service_known; # The known-only flag
 	setudef flag service_bitchmode; # The bitchmode flag
@@ -283,23 +132,15 @@ namespace eval service {
 	setudef str service_kickmsg_userkick
 	setudef str service_kickmsg_userban
 	setudef str service_kickmsg_gban
-	setudef str service_kickmsg_badchan
-	setudef str service_kickmsg_authban
 	setudef str service_kickmsg_defaultban
 	setudef str service_kickmsg_spamkick
 	setudef str service_kickmsg_spamban
 	setudef str service_kickmsg_known
-	setudef str service_vipskin; # The vipskin string which holds the vip skin
-	setudef str service_vipm; # The vipmode string which holds the vip mode
-	setudef str service_vipc; # The vipc chanflag which holds the vip channels
-	setudef str service_vip_authblist; # the vip auth blacklist str which holds the blacklist authnames
 	setudef str service_bantime_flood; # The antiflood bantime
 	setudef str service_clonescan_bantime
 	setudef str service_clonescan_maxclones
 	setudef str service_clonescan_hosttype
 	setudef str service_flood_massjoin
-	setudef str service_badchans
-	setudef str service_authbans
 	setudef str service_welcome_skin
 
 	setudef int service_kid
@@ -307,85 +148,14 @@ namespace eval service {
 	setudef int service_gkid
 	setudef int service_sid
 	setudef int service_limit
-	setudef int service_vipid; # The vipid integer which holds the current vip id
 	setudef int service_stype; # The spamscan_type integer which holds the spamscan excempt type
-	setudef int service_bid
-	setudef int service_aid
 	setudef int service_jid
 
 	setudef int service_userid
-
-	proc onevnt {type} {
-		switch -exact -- $type {
-			"init-server" {
-				putquick "SBNC :partall" -next
-				foreach channel [channels] {
-					channel set $channel +service_startup
-				}
-			}
-			"pre-rehash" {
-				foreach bind [binds *[namespace current]*] {
-					if {$bind == ""} { continue }
-					catch {unbind [lindex $bind 0] [lindex $bind 1] [lindex $bind 2] [lindex $bind 4]}
-				}
-				namespace delete [namespace current]
-				save
-			}
-			"default" {
-				return 0
-			}
-		}
-		return 0
-	}
-
-	proc isnetworkservice {arg} {
-		variable networkservices
-		return [info exists networkservices([string toupper $arg])]
-	}
-
-	proc ischannelservice {arg} {
-		variable networkservices
-		if {[info exists networkservices([set arg [string toupper $arg]])]} {
-			if {$networkservices($arg) == "chanserv"} {
-				return 1
-			}
-		}
-		return 0
-	}
-
-	proc getnetworkservice {channel {type "chanserv"}} {
-		variable networkservices
-		if {![validchan $channel]} { return }
-		foreach {service typ} [array get networkservices] {
-			if {$service == "" || $typ == ""} { continue }
-			if {[string equal -nocase $type $typ]} {
-				if {[onchan $service $channel]} {
-					return $service
-				}
-			}
-		}
-		return
-	}
 	
-	proc getnetworkservices {channel} {
-		variable networkservices
-		if {![validchan $channel]} { return }
-		set services [list]
-		foreach service [array names networkservices] {
-			if {$service == ""} { continue }
-			if {[onchan $service $channel]} {
-				lappend services $service
-			}
-		}
-		return $services
-	}
-
-	proc autosave {minute hour day month year} {
-		variable script
-		putlog "\[ $script - auto \] - Performing autosave..."
-		save
-	}
-
+	# core __init__
+	source scripts/service/core/__init__.tcl
+	
 	foreach channel [channels] {
 		if {[botonchan $channel]} {
 			if {[set tmp [getnetworkservice $channel "chanserv"]] != ""} {
@@ -400,55 +170,6 @@ namespace eval service {
 	}
 
 	
-	#rename newban anewban
-	#proc newban {ban creator comment {lifetime "60"} {options "none"}} { 
-	#	if {$ban == "*!*@" || $ban == "*!*@*" || $ban == "*!**@*" || $ban == "*!**@"} { 
-	#		putlog "newban: (bad banmask: $ban) - $ban $creator '$comment' [expr {[info exists lifetime] ? "$lifetime" : ""}] [expr {[info exists options] ? "$options" : ""}]"
-	#	} else { 
-	#		anewban $ban $creator $comment $lifetime $options
-	#	} 
-	#}
-
-
-	#rename newchanban anewchanban
-	#proc newchanban {channel ban creator comment {lifetime "60"} {options "none"}} { 
-	#	if {$ban == "*!*@" || $ban == "*!*@*" || $ban == "*!**@*" || $ban == "*!**@"} { 
-	#		putlog "newchanban: (bad banmask: $ban) - $channel $ban $creator '$comment' [expr {[info exists lifetime] ? "$lifetime" : ""}] [expr {[info exists options] ? "$options" : ""}]"
-	#	} else { 
-	#		anewchanban $channel $ban $creator $comment $lifetime $options
-	#	} 
-	#}
-
-	foreach user [userlist] {
-		if {$user == ""} { return }
-		if {[getuser $user XTRA mytrigger] == ""} {
-			setuser $user XTRA mytrigger "$trigger"
-			setuser $user XTRA mytriggerset "[clock seconds]"
-		}
-		if {[getuser $user XTRA mytriggerset] == ""} { 
-			setuser $user XTRA mytriggerset "[clock seconds]"
-		}
-		if {[getuser $user XTRA userid] == ""} {
-			channel set $adminchan service_userid "[set userid [expr {[channel get $adminchan service_userid]+1}]]"
-			setuser $user XTRA userid "$userid"
-		}
-		if {[getuser $user XTRA loggedin] == ""} {
-			setuser $user XTRA loggedin 0
-		}
-		if {[getuser $user XTRA lasthost] == ""} {
-			setuser $user XTRA lasthost "N/A"
-		}
-		if {[getuser $user XTRA email] == ""} {
-			setuser $user XTRA email "N/A"
-		}
-		if {[getuser $user XTRA cmdcount] == ""} {
-			setuser $user XTRA cmdcount 0
-		}
-		if {[getuser $user XTRA lastcmd] == ""} {
-			setuser $user XTRA lastcmd "N/A"
-		}
-	}
-
 	proc putservlog {text} {
 		global botnick
 		if {![file isdir [file join [pwd]/logs/service $botnick]]} {
@@ -459,164 +180,8 @@ namespace eval service {
 		close $file
 	}
 	
-	proc helper_loadini_cmd {file} {
-		global botnick altnick
-		variable cmdlist; variable cmdhelp; variable script
-		array unset cmdlist; array set cmdlist {}
-		array unset cmdhelp; array set cmdhelp {}
-		if {[catch {set ini [::ini::open $file r]} err]} {
-			putlog "${script}: Error loading commands ini file => ${file}:"
-			foreach l [split $err \n] {
-				if {$l == ""} { continue }
-				putlog "$l"
-			}
-			putlog "End of commands ini error."
-		} else {
-			#foreach section [::ini::sections $ini] {
-			#	if {$section == ""} { continue }
-			#	foreach key [ini::keys $ini $section] {
-			#		if {$key == ""} { continue }
-			#		set section [string tolower $section]
-			#		set key [string tolower $key]
-			#		if {[catch {set value [::ini::value $ini $section $key]} err]} {
-			#			continue
-			#		} else {
-			#			set cmdhelp($section,$key) $value
-			#		}
-			#	}
-			#}
-			set map [list]
-			lappend map "%botnick% $botnick"
-			lappend map "%altnick% $altnick"
-			foreach section [::ini::sections $ini] {
-				if {$section == ""} { continue }
-				foreach {key value} [::ini::get $ini $section] {
-					if {$key == ""} { continue }
-					if {[string equal -nocase "type" $key] && [string equal -nocase "channel" $value]} { set value "chan" }
-					if {[string equal -nocase "flags" $key] && $value == ""} { set value "|" }
-					if {$value == ""} { continue }
-					set cmdhelp($section,$key) [join [string map [join $map] $value]]
-				}
-				helper_reg_cmd $section $cmdhelp($section,type) $cmdhelp($section,flags)
-			}
-			::ini::close $ini
-			putlog "${script}: Successfully loaded commands ini file => $file"
-		}
-	}
-	
-	proc helper_reg_cmd {command type flags} {
-		variable cmdlist; variable cmdhelp
-		set type [string tolower $type]
-		if {$type != "global" && $type != "channel" && $type != "chan"} { return -1 }
-		if {$flags == ""} { return -2 }
-		set command [string tolower $command]
-		if {[llength [array names cmdlist *:$command]] <= 0} {
-			set cmdlist(${type}:${command}) "$flags"
-			return 1
-		}
-		return 0
-	}
-
-	proc helper_unreg_cmd {command type} {
-		variable cmdlist; variable cmdhelp
-		set type [string tolower $type]
-		if {$type != "global" && $type != "channel"} { return -1 }
-		set command [string tolower $command]
-		if {[info exists cmdlist(${type}:${command})]} {
-			unset cmdlist(${type}:${command})
-			return 1
-		}
-		return 0
-	}
-	
-	proc helper_help_cmd_tonick {command nickname} {
-		variable cmdlist; variable cmdhelp; variable trigger
-		if {[set handle [nick2hand $nickname]] == "" || $handle == "*"} { set trig $trigger }
-		if {![info exists trig] && [set trig [getuser $handle XTRA mytrigger]] == ""} {
-			setuser $handle XTRA mytrigger $trigger; set trig $trigger
-		}
-		set command [string tolower $command]
-		if {[llength [array names cmdlist *:$command]] <= 0} { return 0 }
-		if {[llength [array names cmdhelp $command,*]] <= 0} { return 0 }
-		if {[info exists cmdhelp($command,syntax)]} {
-			set map [list]; lappend map ":trigger: $trig"
-			putserv "NOTICE $nickname :SYNTAX: [string map [join $map] $cmdhelp($command,syntax)]"
-		}
-		if {[string equal -nocase "deprecated" $cmdhelp($command,status)]} {
-			set map [list]; lappend map ":trigger: $trig"
-			putserv "NOTICE $nickname :DEPRECATED: [string map [join $map] $cmdhelp($command,description)]"
-			return
-		}
-		if {[info exists cmdhelp($command,description)]} {
-			if {[llength [split [set description $cmdhelp($command,description)] %%]] > 1} {
-				set i 0
-				foreach line [split $description %%] {
-					if {$line == ""} { continue }
-					set map [list]; lappend map ":trigger: $trig"; set line [string map [join $map] $line]
-					if {$i == 0} {
-						putserv "NOTICE $nickname :DESCRIPTION: $line"; set i 1
-					} else {
-						putserv "NOTICE $nickname :$line"
-					}
-				}; unset i
-			} else {
-				set map [list]; lappend map ":trigger: $trig"
-				putserv "NOTICE $nickname :DESCRIPTION: [string map [join $map] $description]"
-			}
-		}
-		if {[info exists cmdhelp($command,options)]} {
-			if {[llength [split [set options $cmdhelp($command,options)] %%]] > 1} {
-				set i 0
-				foreach line [split $options %%] {
-					if {$line == ""} { continue }
-					set map [list]; lappend map ":trigger: $trig"; set line [string map [join $map] $line]
-					if {$i == 0} {
-						putserv "NOTICE $nickname :OPTIONS: $line"; set i 1
-					} else {
-						putserv "NOTICE $nickname :$line"
-					}
-				}; unset i
-			} else {
-				set map [list]; lappend map ":trigger: $trig"
-				putserv "NOTICE $nickname :OPTIONS: [string map [join $map] $options]"
-			}
-		}
-		return 1
-	}
-	
-	proc helper_list_globalcmds_byhandle {handle} {
-		variable cmdlist
-		if {![validuser $handle]} { return [list] }
-		set cmds [list]
-		foreach {cmd flag} [array get cmdlist global:*] {
-			if {[matchattr $handle $flag]} {
-				lappend cmds [lindex [split $cmd :] 1]
-			}
-		}
-		return [lsort [join $cmds " "]]
-	}
-	
-	proc helper_list_channelcmds_byhandle {channel handle} {
-		variable cmdlist
-		if {![validchan $channel] || ![validuser $handle]} { return [list] }
-		set cmds [list]
-		foreach {cmd flag} [array get cmdlist chan:*] {
-			if {$cmd == ""} { continue }
-			if {[matchattr $handle $flag $channel]} {
-				lappend cmds [lindex [split $cmd :] 1]
-			}
-		}
-		return [lsort [join $cmds " "]]
-	}		
-
-	proc helper_xtra_set {what handle arg} {
-		if {![validuser $handle]} { return }
-		if {$what == "lastcmd"} {
-			setuser $handle XTRA lastcmd "$arg"
-			setuser $handle XTRA lastcmdset "[clock seconds]"
-			setuser $handle XTRA cmdcount "[expr {[getuser $handle XTRA cmdcount]+1}]"
-		}
-	}
+	# helper functions
+	source scripts/service/helpers/helper_functions.tcl
 
 	# The central proc, holds all the commands for all triggers
 
