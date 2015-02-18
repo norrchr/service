@@ -1,9 +1,15 @@
 namespace eval badchan {
 
+	setudef flag service_badchan; # The authbans flag
+	setudef str service_kickmsg_badchan
+	setudef str service_badchans
+	setudef int service_bid
+	
+
 	namespace export processchannel
 	namespace ensemble create
 
-	variable version "1.2"
+	variable version "1.2.1"
 
 	variable kickmsg "Your present on :count: badchannel(s) (:badchan:) and therefore banned from :channel: - ID: :id:"
 
