@@ -15,26 +15,6 @@ namespace eval service {
 	
 	variable cmdinifile "[pwd]/scripts/service/commands.ini"
 	
-	if {[catch {package require inifile 0.2.3} err]} {
-		putlog "${script}: Error loading inifile package -- Exiting."
-		#die "${script}: $script requires inifile tcl package to load -- Exiting."
-	} else {
-		putlog "${script}: Successfully loaded inifile package."
-		if {[catch {[namespace current]::loadconfig} err]} {
-			putlog "${script}: Error loading config file:"
-			foreach li $err {
-				putlog "${script}: $li"
-			}
-			#putlog "-- Exiting."
-			#die "${script}: Error loading config file -- Exiting."
-		} else {
-			putlog "${script}: Successfully loaded config file."
-		}
-	}
-	
-	set __config(core,script) "$script"
-	set __config(core,copyright) "$script - v${version} - $author"
-	
 	proc loadconfig {} {
 		variable __config
 		set file [file join [pwd] service.ini]
@@ -47,6 +27,26 @@ namespace eval service {
 			}
 		}
 	}
+	
+	if {[catch {package require inifile 0.2.3} err]} {
+		putlog "${script}: Error loading inifile package -- Exiting."
+		#die "${script}: $script requires inifile tcl package to load -- Exiting."
+	} else {
+		putlog "${script}: Successfully loaded inifile package."
+		if {[catch {[namespace current]::loadconfig} err]} {
+			putlog "${script}: Error loading config file:"
+			foreach li [split $err \n] {
+				putlog "${script}: $li"
+			}
+			#putlog "-- Exiting."
+			#die "${script}: Error loading config file -- Exiting."
+		} else {
+			putlog "${script}: Successfully loaded config file."
+		}
+	}
+	
+	set __config(core,script) "$script"
+	set __config(core,copyright) "$script - v${version} - $author"
 
 	proc getconf {section arg} {
 		variable __config
