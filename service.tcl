@@ -17,7 +17,7 @@ namespace eval service {
 	
 	proc loadconfig {} {
 		variable __config
-		if {[string match "*/*" [info script]} {
+		if {[string match "*/*" [info script]]} {
 			set file [file join "/[join [lrange [split [info script] /] 0 end-1] "/"]" service.ini]
 		} else {
 			set file [file join "[join [lrange [split [info script] \\] 0 end-1] "\\"]" service.ini]
