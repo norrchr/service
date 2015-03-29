@@ -17,7 +17,11 @@ namespace eval service {
 	
 	proc loadconfig {} {
 		variable __config
-		set file [file join [pwd] service.ini]
+		if {[string match "*/*" [info script]} {
+			set file [file join "/[join [lrange [split [info script] /] 0 end-1] "/"]" service.ini]
+		} else {
+			set file [file join "[join [lrange [split [info script] \\] 0 end-1] "\\"]" service.ini]
+		}
 		set ini [::ini::open $file r]
 		foreach section [::ini::sections $ini] {
 			if {$section == ""} { continue }
