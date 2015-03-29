@@ -14,15 +14,16 @@ namespace eval service {
 	variable copyright "$script - v${version} - $author"
 	
 	variable cmdinifile "[pwd]/scripts/service/commands.ini"
+	variable configinifile "[pwd]/scripts/service/service.ini"
 	
 	proc loadconfig {} {
-		variable __config
-		if {[string match "*/*" [info script]]} {
-			set file [file join "/[join [lrange [split [info script] /] 0 end-1] "/"]" service.ini]
-		} else {
-			set file [file join "[join [lrange [split [info script] \\] 0 end-1] "\\"]" service.ini]
-		}
-		set ini [::ini::open $file r]
+		variable __config; variable configinifile
+		#if {[string match "*/*" [info script]]} {
+		#	set file [file join "/[join [lrange [split [info script] /] 0 end-1] "/"]" service.ini]
+		#} else {
+		#	set file [file join "[join [lrange [split [info script] \\] 0 end-1] "\\"]" service.ini]
+		#}
+		set ini [::ini::open %configinifile r]
 		foreach section [::ini::sections $ini] {
 			if {$section == ""} { continue }
 			foreach {key value} [::ini::get $ini $section] {
