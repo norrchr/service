@@ -52,8 +52,8 @@ namespace eval service {
 		variable __config
 		set section [string tolower $section]
 		set arg [string tolower arg]
-		if {![info exists __config($section,$arg)]} { return -1 }
-		return $__config($section,$arg)
+		if {![info exists __config(${section},${arg})]} { return -1 }
+		return $__config(${section},${arg})
 	}
 	
 	# module functions
