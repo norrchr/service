@@ -23,7 +23,7 @@ namespace eval service {
 		#} else {
 		#	set file [file join "[join [lrange [split [info script] \\] 0 end-1] "\\"]" service.ini]
 		#}
-		set ini [::ini::open %configinifile r]
+		set ini [::ini::open $configinifile r]
 		foreach section [::ini::sections $ini] {
 			if {$section == ""} { continue }
 			foreach {key value} [::ini::get $ini $section] {
