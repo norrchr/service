@@ -4,17 +4,56 @@ namespace eval service {
 		
 	variable start [clock clicks]
 	
+	if {![array exists __config]} {
+		array set __config {}
+	}
+	
 	variable script [lindex [split [info script] /] end]
-	variable version "5.0.1.0 AUTH-MODULAR-GIT-BETA"
+	variable version "5.0.1.1 AUTH-MODULAR-GIT-BETA"
 	variable author "r0t3n aka Eagle \( #r0t3n \)"    
 	variable copyright "$script - v${version} - $author"
 	
 	variable cmdinifile "[pwd]/scripts/service/commands.ini"
 	
 	if {[catch {package require inifile 0.2.3} err]} {
-		putlog "${script}: Error loading inifile package."
+		putlog "${script}: Error loading inifile package -- Exiting."
+		#die "${script}: $script requires inifile tcl package to load -- Exiting."
 	} else {
 		putlog "${script}: Successfully loaded inifile package."
+		if {[catch {[namespace current]::loadconfig} err]} {
+			putlog "${script}: Error loading config file:"
+			foreach li $err {
+				putlog "${script}: $li"
+			}
+			#putlog "-- Exiting."
+			#die "${script}: Error loading config file -- Exiting."
+		} else {
+			putlog "${script}: Successfully loaded config file."
+		}
+	}
+	
+	set __config(core,script) "$script"
+	set __config(core,copyright) "$script - v${version} - $author"
+	
+	proc loadconfig {} {
+		variable __config
+		set file [file join [pwd] service.ini]
+		set ini [::ini::open $file r]
+		foreach section [::ini::sections $ini] {
+			if {$section == ""} { continue }
+			foreach {key value} [::ini::get $ini $section] {
+				if {$key == ""} { continue }
+				set __config([string tolower $section],[string tolower $key]) "$value"
+			}
+		}
+	}
+
+	proc getconf {section arg} {
+		variable __config
+		set section [string tolower $section]
+		set arg [string tolower arg]
+		if {![info exists __config($section,$arg)]} { return -1 }
+		return $__config($section,$arg)
 	}
 	
 	# module functions
@@ -1683,7 +1722,8 @@ namespace eval service {
 					variable script; variable author; variable version; variable linecount
 					helper_xtra_set "lastcmd" $handle "$channel ${lastbind}$command $text"
 					set modules [loadedmodules]
-					puthelp "NOTICE $nickname :$script v${version} by $author loaded! (Line Count: $linecount) ([llength $modules] module(s) loaded[expr {[llength $modules]>0  ? ": [join $modules ", "]" : ""}])."
+					#puthelp "NOTICE $nickname :$script v${version} by $author loaded! (Line Count: $linecount) ([llength $modules] module(s) loaded[expr {[llength $modules]>0  ? ": [join $modules ", "]" : ""}])."
+					puthelp "NOTICE $nickname :[getconf core script]: [getconf core version]-[getconf core verstxt] by [getconf core author] loaded! (Line Count: $linecount) ([llength $modules] module(s) loaded[expr {[llength $modules]>0  ? ": [join $modules ", "]" : ""}])."
 				}
 				"invite" {
 					if {![matchattr $handle nm|nmo $channel]} {
@@ -5708,7 +5748,8 @@ namespace eval service {
 		set modules [loadedmodules]
 		set end [clock clicks]
 		set ms [expr {(round($end) - round($start))/1000.0}]ms
-		putlog "$copyright - [llength $modules] module(s) loaded[expr {[llength $modules]>0  ? ": [join $modules ", "]" : ""}] - loaded in $ms!!"
+		#putlog "$copyright - [llength $modules] module(s) loaded[expr {[llength $modules]>0  ? ": [join $modules ", "]" : ""}] - loaded in $ms!!"
+		putlog "[getconf core script]: [getconf core version]-[getconf core verstxt] by [getconf core author] loaded in ${ms}! [llength $modules] module(s) loaded[expr {[llength $modules]>0  ? ": [join $modules ", "]" : ""}]."
 	}
 	
 	proc kickban {nickname channel type {reason {}}} {
