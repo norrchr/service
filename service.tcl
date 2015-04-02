@@ -3095,7 +3095,7 @@ namespace eval service {
 							putserv "NOTICE $nickname :Invalid banmask '$mask'."
 						} else {
 							putserv "NOTICE $nickname :Performing DNS lookup on '$mask'..."
-							dnslookup [lindex [split $mask @] 1] ::service::dnslookup_ban $mask $nickname $handle $channel $reason ${lastbind}$command
+							dnslookup [lindex [split $mask @] 1] ::service::dnslookup_ban $mask $nickname $handle $channel $time $reason ${lastbind}$command
 						}
 					} elseif {[onchan $mask $channel]} {
 						if {[string equal -nocase $botnick $mask]} {
@@ -3104,11 +3104,11 @@ namespace eval service {
 						set uh [getchanhost $mask $channel]
 						if {[string equal -nocase "*.users.quakenet.org" $uh]} {
 							set bmask *!*@[lindex [split $uh @] 1]
-							dnslookup_ban {} {} 2 $mask $nickname $handle $channel $reason ${lastbind}$command
+							dnslookup_ban {} {} 2 $mask $nickname $handle $channel $time $reason ${lastbind}$command
 						} else {
 							set bmask *!*$uh
 							putserv "NOTICE $nickname :Performing DNS lookup on '$uh'..."
-							dnslookup [lindex [split $uh @] 1] ::service::dnslookup_ban $mask $nickname $handle $channel $reason ${lastbind}$command
+							dnslookup [lindex [split $uh @] 1] ::service::dnslookup_ban $mask $nickname $handle $channel $time $reason ${lastbind}$command
 						}
 					} else {
 						putserv "NOTICE $nickname :ERROR: '$mask' is not on $channel."
@@ -5426,7 +5426,7 @@ namespace eval service {
 		return 0
 	}
 	
-	proc dnslookup_ban {ipaddr hostname status mask nickname handle channel reason lastbind} {
+	proc dnslookup_ban {ipaddr hostname status mask nickname handle channel time reason lastbind} {
 		if {$status == 0} {
 			putserv "NOTICE $nickname :BAN: DNS lookup failed for '$mask'."; return
 		} else {
