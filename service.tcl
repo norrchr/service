@@ -3071,6 +3071,49 @@ namespace eval service {
 						putquick "KICK $channel $who :$kmsg"
 					}
 				}
+				"dnsban" - "dkb" {
+					variable kickmsg; variable defaultreason
+					if {![matchattr $handle ADnm|nmo $channel]} {
+						puthelp "NOTICE $nickname :You have no access to this command."
+						return
+					}
+					helper_xtra_set "lastcmd" $handle "$channel ${lastbind}$command $text"
+					set mask [lindex [split $text] 0]
+					set time [lindex [split $text] 1]
+					set reason [lrange $text 2 end]
+					if {![regexp {[\d]{1,}(m|h|d|w|y)|^0$} $time]} {
+						set time "1h"
+						set reason [lrange $text 1 end]
+					}
+					if {$mask == ""} {
+						putserv "NOTICE $nickname :SYNTAX: ${lastbind}$command nickname|ip|hostname ?bantime? ?reason?. Bantime format: XmXhXdXwXy (Where 'X' must be a number - For permban specify '0' on its own)."
+						return
+					}
+					if {[regexp {(.+)!(.+)@(.+)} $mask]} {			
+						#if {$mask == "*!*@*" || $mask == "*!*@" || $mask == "*!**@" || $mask == "*!**@*"} {
+						if {![validbanmask $mask]} {
+							putserv "NOTICE $nickname :Invalid banmask '$mask'."
+						} else {
+							putserv "NOTICE $nickname :Performing DNS lookup on '$mask'..."
+							dnslookup [lindex [split $mask @] 1] [list ::service::dnslookup_ban $mask $nickname $handle $channel ${lastbind}$command]
+						}
+					} elseif {[onchan $mask $channel]} {
+						if {[string equal -nocase $botnick $mask]} {
+							putserv "NOTICE $nickname :You can't ban me!"; return
+						} 
+						set uh [getchanhost $mask $channel]
+						if {[string equal -nocase "*.users.quakenet.org" $uh]} {
+							set bmask *!*@[lindex [split $uh @] 1]
+							dnslookup_ban {} {} 2 $mask $nickname $handle $channel ${lastbind}$command
+						} else {
+							set bmask *!*$uh
+							putserv "NOTICE $nickname :Performing DNS lookup on '$uh'..."
+							dnslookup [lindex [split $uh @] 1] [list ::service::dnslookup_ban $mask $nickname $handle $channel ${lastbind}$command]
+						}
+					} else {
+						putserv "NOTICE $nickname :ERROR: '$mask' is not on $channel."
+					}
+				}
 				"ban" - "kb" {
 					variable kickmsg; variable defaultreason
 					if {![matchattr $handle ADnm|nmo $channel]} {
@@ -3082,7 +3125,7 @@ namespace eval service {
 					set time [lindex [split $text] 1]
 					set reason [lrange $text 2 end]
 					if {$mask == ""} {
-						putserv "NOTICE $nickname :SYNTAX: ${lastbind}$command nickname|hostname ?bantime? ?reason?. Bantime format: XmXhXdXwXy (Where 'X' must be a number - For permban specify '0' on its own)."
+						putserv "NOTICE $nickname :SYNTAX: ${lastbind}$command nickname|ip|hostname ?bantime? ?reason?. Bantime format: XmXhXdXwXy (Where 'X' must be a number - For permban specify '0' on its own)."
 						return
 					}
 					if {[regexp {(.+)!(.+)@(.+)} $mask]} {
@@ -5381,6 +5424,82 @@ namespace eval service {
 		}
 		if {$ex && $at && $r} { return [widebanmask $mask] }
 		return 0
+	}
+	
+	proc dnslookup_ban {ipaddr hostname status mask nickname handle channel lastbind} {
+		if {$status == 0} {
+			putserv "NOTICE $nickname :BAN: DNS lookup failed for '$mask'."; return
+		} else {
+			if {$status == 1} {
+				if {[set hand [host2hand [set mask1 [lindex [split $mask @] 0]@$ipaddr]]] == "*"} {
+					set hand [host2hand [set mask2 [lindex [split $mask @] 0]@$hostname]]
+				}
+			} else {
+				# *.users.quakenet.org
+				set hand [host2hand $mask]
+			}
+			if {[matchattr $hand ADnm] && ![matchattr $handle ADn]} {
+				putserv "NOTICE $nickname :You are not allowed to ban my bot owner/master."
+			} elseif {[matchattr $hand |n $channel] && ![matchattr $handle |n $channel]} {
+				putserv "NOTICE $nickname :You don't have enough access to ban a channel owner."
+			} elseif {[matchattr $hand |m $channel] && ![matchattr $handle |n $channel]} {
+				putserv "NOTICE $nickname :You don't have enough access to ban a channel master."
+			} elseif {[matchattr $hand |o $channel] && ![matchattr $handle |nm $channel]} {
+				putserv "NOTICE $nickname :You don't have enough access to ban a channel operator."
+			} elseif {[matchattr $hand |v $channel] && ![matchattr $handle |nmo $channel]} {
+				putserv "NOTICE $nickname :You don't have enough access to ban a channel voice."
+			} elseif {[matchattr $hand N]} {
+				putserv "NOTICE $nickname :You can't ban a protected nick/user."
+			} else {
+				if {$status == 1} {
+					if {[isban $mask1 $channel]} {
+						if {[isban $mask2 $channel]} {
+							putserv "NOTICE $nickname :Banmask '$mask1' ($mask2) is already banned on $channel."; return
+						} else {
+							putserv "NOTICE $nickname :Banmask '$mask1' is already banned on $channel."; return
+						}
+					} elseif {[isban $mask2 $channel]} {
+						putserv "NOTICE $nickname :Banmask '$mask2' is already banned on $channel."; return
+					}
+				} else {
+					if {[isban $mask $channel]} {
+						putserv "NOTICE $nickname :Banmask '$mask' is already banned on $channel."; return
+					}
+				}
+				if {[channel get $channel service_kickmsg_ban] == ""} {
+					channel set $channel service_kickmsg_ban "$kickmsg(userban)"
+				}
+				channel set $channel service_kid "[set id [expr {[channel get $channel service_kid] + 1}]]"
+				set kmsg [channel get $channel service_kickmsg_ban]
+				regsub -all :nickname: $kmsg $nickname kmsg
+				regsub -all :channel: $kmsg $channel kmsg
+				if {$reason == ""} {
+					regsub -all :reason: $kmsg "$defaultreason" kmsg
+				} else {
+					regsub -all :reason: $kmsg "$reason" kmsg
+				}
+				regsub -all :bantime: $kmsg $time kmsg
+				regsub -all :id: $kmsg $id kmsg
+				if {$status == 1} {
+					putquick "MODE $channel +bb $mask1 $mask2"
+					newchanban $channel $mask1 $handle "$kmsg" [expr {[set bt [tduration $time]]/60}]
+					newchanban $channel $mask2 $handle "$kmsg" [expr {[set bt [tduration $time]]/60}]
+					if {$time == "0"} {
+						putserv "NOTICE $nickname :Banmask '$mask1' ($mask2) added to my banlist (Expires: Never!)."
+					} else {
+						putserv "NOTICE $nickname :Banmask '$mask1' ($mask2) added to my banlist for $time (Expires: [clock format [expr {[unixtime]+$bt}] -format "%a %d %b %Y at %H:%M:%S %Z"])."
+					}
+				} else {
+					putquick "MODE $channel +b $mask"
+					newchanban $channel $mask $handle "$kmsg" [expr {[set bt [tduration $time]]/60}]
+					if {$time == "0"} {
+						putserv "NOTICE $nickname :Banmask '$mask' added to my banlist (Expires: Never!)."
+					} else {
+						putserv "NOTICE $nickname :Banmask '$mask' added to my banlist for $time (Expires: [clock format [expr {[unixtime]+$bt}] -format "%a %d %b %Y at %H:%M:%S %Z"])."
+					}
+				}
+			}
+		}
 	}
 
 	proc sortmodes {mstr} {
