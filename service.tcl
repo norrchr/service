@@ -3089,13 +3089,13 @@ namespace eval service {
 						putserv "NOTICE $nickname :SYNTAX: ${lastbind}$command nickname|ip|hostname ?bantime? ?reason?. Bantime format: XmXhXdXwXy (Where 'X' must be a number - For permban specify '0' on its own)."
 						return
 					}
-					if {[regexp {(.+)!(.+)@(.+)} $mask]} {			
+					if {[regexp {(.+)!(.+)@(.+?)} $mask]} {			
 						#!validbanmask $mask
 						if {$mask == "*!*@*" || $mask == "*!*@" || $mask == "*!**@" || $mask == "*!**@*"} {
 							putserv "NOTICE $nickname :Invalid banmask '$mask'."
 						} else {
 							putserv "NOTICE $nickname :Performing DNS lookup on '$mask'..."
-							dnslookup [lindex [split $mask @] 1] [list ::service::dnslookup_ban $mask $nickname $handle $channel ${lastbind}$command]
+							dnslookup [lindex [split $mask @] 1] [list dnslookup_ban $mask $nickname $handle $channel ${lastbind}$command]
 						}
 					} elseif {[onchan $mask $channel]} {
 						if {[string equal -nocase $botnick $mask]} {
@@ -3108,7 +3108,7 @@ namespace eval service {
 						} else {
 							set bmask *!*$uh
 							putserv "NOTICE $nickname :Performing DNS lookup on '$uh'..."
-							dnslookup [lindex [split $uh @] 1] [list ::service::dnslookup_ban $mask $nickname $handle $channel ${lastbind}$command]
+							dnslookup [lindex [split $uh @] 1] [list dnslookup_ban $mask $nickname $handle $channel ${lastbind}$command]
 						}
 					} else {
 						putserv "NOTICE $nickname :ERROR: '$mask' is not on $channel."
