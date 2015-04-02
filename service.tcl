@@ -3090,7 +3090,8 @@ namespace eval service {
 						return
 					}
 					if {[regexp {(.+)!(.+)@(.+)} $mask]} {			
-						if {![validbanmask $mask]} {
+						#!validbanmask $mask
+						if {$mask == "*!*@*" || $mask == "*!*@" || $mask == "*!**@" || $mask == "*!**@*"} {
 							putserv "NOTICE $nickname :Invalid banmask '$mask'."
 						} else {
 							putserv "NOTICE $nickname :Performing DNS lookup on '$mask'..."
