@@ -1,6 +1,10 @@
 # eggdrop service script: service.tcl
 service modular-git BETA version, use at your own risk, script may contain bugs which may crash your bot, or totally bork your irc channel.
 
+# Requirements:
+
+tcllib - required for the inifile package to read the config and commands file
+
 # Installation:
 
 cd to your eggdrop's scripts directory, and type: git clone https://github.com/r0t3n/service.git
