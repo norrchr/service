@@ -1,12 +1,11 @@
 namespace eval commands {
 
-	# TODO:
-	#		cmd2level <command>
-	#		handle2level <handle> ?channel?
-	#		add error handling code for	command execution
-	#		define and code a proper level class system based on number values (>=0<=499 channel, >=500 global)
+	bind pubm - {*} [namespace current]::handler
+	
+	namespace export register deregister registered level2cmds cmd2level handle2level
+	namespace ensemble create
 
-	variable version "1.0.0"
+	variable version "1.1.2"
 
 	array set bind2proc {}
 	
@@ -45,24 +44,39 @@ namespace eval commands {
 			set lastbind $first
 			set text [join [lreplace [split $text] 0 0]]
 		} else {
+			if {[ismodule badwords]} {
+				if {[catch {set r [service badwords processline $nickname $hostname $handle $channel $text]} err]} {
+					putlog "ERROR: Could not processline for badwords:"
+					foreach li [split $err \n] {
+						putlog "$li"
+					}
+					putlog "End of error."
+				} elseif {$r} {
+					# result == 1 (blocking)
+					return
+				}
+			}
+			# call other modules here
 			return
 		}
 		if {![validcommand $command]} {
 			putserv "NOTICE $nickname :ERROR: Unknown command '$command'."; return
 		} else {
 			set cmdl [cmd2level $command]
-			if {$cmdl >= 500} {
+			if {$cmdl >= 600} {
 				# global command
 				set usrl [handle2level $handle]
 				if {$cmdl > $usrl} {
 					putserv "NOTICE $nickname :ERROR: You do not have the required access to use '$command."; return
 				}
-			} else {
+			} elseif {$cndl <= 500} {
 				# channel command
 				set usrl [handle2level $handle $channel]
 				if {$cmdl > $usrl} {
 					putserv "NOTICE $nickname :ERROR: You do not have the required access to use '$command' on $channel."; return
 				}
+			} else {
+				putserv "NOTICE $nickname :ERROR: An error occurred whilst checking your access level."; return
 			}
 			if {![info exists bind2proc([string tolower $command],$cmdl)]} {
 				putserv "NOTICE $nickname :ERROR: Failed to grab '$command' function from command registry."; return
@@ -80,8 +94,18 @@ namespace eval commands {
 			set arr(command) $command
 			set arr(botnick) $botnick
 			if {[catch {$function [expr {$arguments == "" ? "" : [processargs $arguments [array get arr]]}]} err]} {
-				putserv "NOTICE $nickname :ERROR: There was an error whilst processing '$command'."
-				# handle error here
+				putserv "NOTICE $nickname :ERROR: There was an error whilst processing '$command'. (This error has been reported to bot admins)"
+				set rc [service getconf core reportchan]
+				putserv "PRIVMSG $rc :An error occurred whilst processing '$command' for $nickname ($handle):"
+				putserv "PRIVMSG $rc :Function: $function - Arguments: [expr {$arguments == "" ? "N/A" : $arguments]"
+				if {$arguments nq ""} {
+					putserv "PRIVMSG $rc :Values: [processargs $arguments [array get arr]]"
+				}
+				foreach li [split $err \n] {
+					if {$li eq ""} { continue }
+					putserv "PRIVMSG $rc :$li"
+				}
+				putserv "PRIVMSG $rc :End of error report."
 			}
 		}
 	}			
@@ -141,7 +165,7 @@ namespace eval commands {
 		}
 	}
 	
-	proc level2cmd {max {min {0}}} {
+	proc level2cmds {max {min {0}}} {
 		variable bind2proc
 		set l [list]
 		if {[llength [array names bind2proc]]<=0} { return $l }
@@ -163,5 +187,87 @@ namespace eval commands {
 		}
 		return [join $l " "]
 	}
+	
+	proc cmd2level {command} {
+		variable bind2proc
+		if {$command eq ""} { return -1 }
+		if {[llength [array names bind2proc]]<=0} { return -1 }
+		foreach b, l [split [array names bind2proc] ,] {
+			if {[string equal -nocase $command $b]} {
+				return $l
+			}
+		}
+		return -1
+	}
+	
+	proc validcommand {command} {
+		variable bind2proc
+		if {$command eq ""} { return 0 }
+		if {[llength [array names bind2proc]]<=0} { return 0 }
+		foreach b, l [split [array names bind2proc] ,] {
+			if {[string equal -nocase $command $b]} {
+				return 1
+			}
+		}
+		return 0
+	}
+	
+	proc handle2level {handle {channel {}}} {
+		if {$handle eq "" || ![validuser $handle]} { return -1 }
+		if {$channel eq ""} {
+			if {[matchattr $handle A] || [matchattr $handle D]} {
+				# global admin/dev
+				return 1000
+			} elseif {[matchattr $handle n]} {
+				# global owner
+				return 950
+			} elseif {[matchattr $handle S]} {
+				# network service
+				return 900
+			} elseif {[matchattr $handle m]} {
+				# global master
+				return 850
+			} elseif {[matchattr $handle o]} {
+				# global operator
+				return 800
+			} elseif {[matchattr $handle v] || [matchattr $handle f]} {
+				# global voice/friend
+				return 750
+			} elseif {[matchattr $handle B]} {
+				# global ban
+				return 700
+			} else {
+				# global nothing
+				return 600
+			}
+		} elseif {![validchannel $channel]} {
+			return 0
+		} else {
+			if {[matchattr $handle ADn|n $channel]} {
+				# global admin/dev/owner or channel owner
+				return 500
+			} elseif {[matchattr $handle S|S $channel]} {
+				# network service
+				return 499
+			} elseif {[matchattr $handle m|m $channel]} {
+				# global master or channel master
+				return 450
+			} elseif {[matchattr $handle o|o $channel]} {
+				# global operator or channel operator
+				return 400
+			} elseif {[matchattr $handle v|v $channel] || [matchattr $handle f|f $channel]} {
+				# global voice/friend or channel voice/friend
+				return 350
+			} elseif {[matchattr $handle B|B $channel]} {
+				# global ban or channel ban
+				return 300
+			} else {
+				# channel nothing
+				return 0
+			}
+		}
+	}
+	
+	putlog "[namespace current] version $version loaded."
 	
 }
