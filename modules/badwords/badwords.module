@@ -1,0 +1,57 @@
+namespace eval badwords {
+
+	variable version "1.0.0"
+
+	setudef flag service_badword
+	setudef str service_badwords
+	setudef str service_badword_kickmsg
+	setudef int service_badword_bwkid
+	setudef int service_badword_bwid
+	setudef int service_badword_bantime
+	
+	proc processline {nickname handle handle channel text} {
+		set li [list]
+		if {[channel get $channel service_badword] && [set words [string tolower [channel get $channel service_badwords]]] != "" && ![matchattr $handle nm|nmo $channel]} {
+			foreach word [string tolower $text] {
+				if {$word == ""} { continue }
+				if {[lsearch -exact $words $word]>=0} {
+					lappend li $word
+				}
+			}
+			if {[llength $li]<=0} { return 0 }
+			if {[string match -nocase *users.quakenet.org [set banmask *!*[string trimleft $hostname ~]]]} {
+				set banmask *!*@[lindex [split $hostname @] 1]
+			}
+			if {[set kmsg [channel get $channel service_badword_kickmsg]] == ""} {
+				channel set $channel service_badword_kickmsg "[set kmsg $kickmsg(badword)]"
+			}
+			channel set $channel service_badword_bwkid "[set bwkid [expr {[channel get $channel service_badword_bwkid] + 1}]]"
+			channel set $channel service_badword_bwid "[set bwid [expr {[channel get $channel service_badword_bwid] + [llength $li]}]]"
+			if {![botisop $channel]} { return }
+			
+			set map [list]
+			lappend map ":nickname: $nickname"					
+			lappend map ":hostname: $hostname"
+			lappend map ":badword: [lindex [split $li] [rand [llength $li]]]"
+			lappend map ":badwords: \{[join $li ", "]\}"
+			lappend map ":found: [llength $li]"
+			lappend map ":channel: $channel"
+			lappend map ":id: $bwkid"
+			lappend map ":bid: $bwid"			
+			set kmsg [string map [join $map] $kmsg]
+			putserv "MODE $channel -o+b $nickname $banmask"
+			putserv "KICK $channel $nickname :$kmsg"
+			if {[set bantime [channel get $channel service_badword_bantime]] == "0"} {
+				channel set $channel service_badword_bantime "[set bantime 1]"
+			}
+			utimer [expr {$bantime * 60}] [list pushmode $channel -b $banmask]
+			return 1
+		}
+		return 0
+	}
+	
+	putlog "[namespace current] version $version loaded."
+	
+}
+
+namespace export badwords
