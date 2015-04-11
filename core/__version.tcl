@@ -1,6 +1,6 @@
 variable versmajor "5.0"
-variable versminor "1"
-variable versbugfix "1"
+variable versminor "2"
+variable versbugfix "0"
 variable versdesc "AUTH-MODULAR-GIT-BETA"
 
 variable version "${versmajor}.${versminor}.${versbugfix}"
