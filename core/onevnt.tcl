@@ -1,5 +1,3 @@
-bind evnt - {*} [namespace current]::onevnt
-
 proc onevnt {type} {
 	switch -exact -- $type {
 		"init-server" {
