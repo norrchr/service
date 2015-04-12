@@ -36,7 +36,7 @@ namespace eval commands {
 	}
 	
 	proc handler {nickname hostname handle channel text} {
-		global botnick; variable dtrigger; variable triggers; variable bind2proc
+		global botnick lastbind; variable dtrigger; variable triggers; variable bind2proc
 		if {[validuser $handle]} {
 			set trigger [getuser $handle XTRA trigger]
 			if {$trigger eq "" || [lsearch -exact $trigger $triggers]<0} {
