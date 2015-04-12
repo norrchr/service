@@ -1,6 +1,6 @@
 namespace eval commands {
 
-	bind pubm - "*" [namespace current]::handler
+	#bind pubm - "*" [namespace current]::handler
 	
 	namespace export register deregister registered level2cmds cmd2level handle2level
 	namespace ensemble create

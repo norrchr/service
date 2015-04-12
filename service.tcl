@@ -13,6 +13,9 @@ namespace eval service {
 	# load config file
 	source scripts/service/core/__config.tcl
 	
+	# load command handler functions
+	source scripts/service/core/__commands.tcl
+	
 	# globr
 	source scripts/service/core/__globr.tcl
 	
