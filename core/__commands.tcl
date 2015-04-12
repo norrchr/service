@@ -9,8 +9,8 @@ namespace eval commands {
 
 	array set bind2proc {}
 	
-	variable dtrigger [service getconf core trigger]
-	variable triggers [service getconf core triggers]
+	variable dtrigger [service::getconf core trigger]
+	variable triggers [service::getconf core triggers]
 	
 	proc processargs {arg arr} {
 		array set res $arr
