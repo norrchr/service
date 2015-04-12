@@ -18,11 +18,13 @@ namespace eval commands {
 		#	lappend map ":${ele}: $val"
 		#}
 		#return [string map [join $map] $arg]
+		set li [list]
 		foreach {ele val} [array get res] {
 			if {$ele eq ""} { continue }
-			set arg [string map { :${ele}: $val } $arg]
+			set a [string map { :${ele}: $val } $arg]
+			lappend li $a
 		}
-		return $arg
+		return $li
 	}
 	
 	proc handler {nickname hostname handle channel text} {
@@ -98,7 +100,7 @@ namespace eval commands {
 				putserv "NOTICE $nickname :ERROR: There was an error whilst processing '$command'. (This error has been reported to bot admins)"
 				set rc [service getconf core adminchan]
 				putserv "PRIVMSG $rc :An error occurred whilst processing '$command' for $nickname ($handle):"
-				putserv "PRIVMSG $rc :Function: $function - Arguments: [expr {$arguments ne "" ? "N/A" : $arguments}]"
+				putserv "PRIVMSG $rc :Function: $function - Arguments: [expr {$arguments eq "" ? "N/A" : $arguments}]"
 				if {$arguments ne ""} {
 					putserv "PRIVMSG $rc :Values: [processargs $arguments [array get arr]]"
 				}
