@@ -17,7 +17,6 @@ namespace eval commands {
 			if {$ele eq "" || $val eq ""} { continue }
 			lappend map ":${ele}: $val"
 		}
-		lappend map ":results: \{[array get res]\}"
 		return [string map [join $map] $arg]
 	}
 	
