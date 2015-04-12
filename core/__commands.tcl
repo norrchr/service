@@ -39,12 +39,13 @@ namespace eval commands {
 		global botnick lastbind; variable dtrigger; variable triggers; variable bind2proc
 		if {[validuser $handle]} {
 			set trigger [getuser $handle XTRA mytrigger]
-			if {$trigger eq "" || [lsearch -exact $trigger $triggers]<0} {
+			if {$trigger eq ""} {
 				setuser $handle XTRA mytrigger [set trigger $dtrigger]
 			}
 		} else {
 			set trigger $dtrigger
 		}
+		putlog "trigger = $trigger / dtrigger = $dtrigger"
 		set first [lindex [split $text] 0]
 		if {[string equal -nocase $botnick $first]} {
 			set command [lindex [split $text] 1]
