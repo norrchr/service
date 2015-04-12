@@ -12,22 +12,12 @@ namespace eval commands {
 	proc processargs {arg arr} {
 		array set res $arr
 		if {[llength [array names res]] <= 0} { return $arg }
-		#set map [list]
-		#foreach {ele val} [array get res] {
-		#	if {$ele eq "" || $val eq ""} { continue }
-		#	lappend map ":${ele}: $val"
-		#}
-		#return [string map [join $map] $arg]
-		set li [list]
+		set map [list]
 		foreach {ele val} [array get res] {
-			if {$ele eq ""} { continue }
-			set a [join [string map ":${ele}: $val" $arg]]
-			if {$val ne ""} {
-				putlog "$ele = $a"
-			}
-			lappend li $a
+			if {$ele eq "" || $val eq ""} { continue }
+			lappend map ":${ele}: \{$val\}"
 		}
-		return $li
+		return [string map [join $map] $arg]
 	}
 	
 	proc handler {nickname hostname handle channel text} {
