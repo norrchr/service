@@ -17,7 +17,7 @@ namespace eval commands {
 			if {$ele eq "" || $val eq ""} { continue }
 			lappend map ":${ele}: \{$val\}"
 		}
-		return [string map [join $map] $arg]
+		return [list [string map [join $map] $arg]]
 	}
 	
 	proc handler {nickname hostname handle channel text} {
