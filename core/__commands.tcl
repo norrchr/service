@@ -92,7 +92,7 @@ namespace eval commands {
 			set arr(botnick) $botnick
 			if {[catch {$function [expr {$arguments ne "" ? "" : [processargs $arguments [array get arr]]}]} err]} {
 				putserv "NOTICE $nickname :ERROR: There was an error whilst processing '$command'. (This error has been reported to bot admins)"
-				set rc [service getconf core reportchan]
+				set rc [service getconf core adminchan]
 				putserv "PRIVMSG $rc :An error occurred whilst processing '$command' for $nickname ($handle):"
 				putserv "PRIVMSG $rc :Function: $function - Arguments: [expr {$arguments ne "" ? "N/A" : $arguments}]"
 				if {$arguments ne ""} {
