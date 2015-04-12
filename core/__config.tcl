@@ -50,4 +50,3 @@ set __config(core,script) "$script"
 set __config(core,copyright) "$copyright"
 
 namespace export getconf
-namespace ensemble create
