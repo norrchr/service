@@ -26,7 +26,7 @@ namespace eval commands {
 				lappend $v
 			}
 		}
-		return [list $li]		
+		return $li		
 		#set map [list]
 		#foreach {ele val} [array get res] {
 		#	if {$ele eq "" || $val eq ""} { continue }
@@ -110,7 +110,7 @@ namespace eval commands {
 				putserv "PRIVMSG $rc :An error occurred whilst processing '$command' for $nickname ($handle):"
 				putserv "PRIVMSG $rc :Function: $function - Arguments: [expr {$arguments eq "" ? "N/A" : $arguments}]"
 				if {$arguments ne ""} {
-					set values [processargs $arguments [array get arr]]
+					set values [list [processargs $arguments [array get arr]]]
 					putserv "PRIVMSG $rc :Values ([llength $values]): $values"
 				}
 				foreach li [split $err \n] {
