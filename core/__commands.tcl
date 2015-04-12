@@ -86,7 +86,7 @@ namespace eval commands {
 			set arr(hostname) $hostname
 			set arr(handle) $handle
 			set arr(channel) $channel
-			set arr(text) $text
+			set arr(text) \{$text\}
 			set arr(lastbind) $lastbind
 			set arr(command) $command
 			set arr(botnick) $botnick
