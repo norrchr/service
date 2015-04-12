@@ -105,7 +105,7 @@ namespace eval commands {
 			#set arr(command) $command
 			#set arr(botnick) $botnick
 			#if {[catch {$function [expr {$arguments ne "" ? "" : [processargs $arguments [array get arr]]}]} err]}
-			#if {[catch {$function [set values [processargs $arguments [array get arr]]]} err]} {
+			#if {[catch {$function [set values [processargs $arguments [array get arr]]]} err]}
 			if {[catch {$function $nickname $hostname $handle $channel $text} err]} {
 				putserv "NOTICE $nickname :ERROR: There was an error whilst processing '$command'. (This error has been reported to bot admins)"
 				set rc [service getconf core adminchan]
