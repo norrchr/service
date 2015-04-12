@@ -105,3 +105,6 @@ proc ismodule {module} {
 	set module [string tolower $module]
 	return [namespace exists $module]
 }
+
+namespace export ismodule loadedmodules loadmodule unloadmodule
+namespace ensemble create

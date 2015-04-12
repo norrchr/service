@@ -50,12 +50,14 @@ namespace eval commands {
 			set command [lindex [split $text] 1]
 			set lastbind "$first $command"
 			set text [join [lreplace [split $text] 0 1]]
+			putlog "#1 bind = $lastbind / command = $command / text = $text"
 		} elseif {[lsearch -exact [string index $first 0] $triggers]>=0 && [string equal -nocase [string index $first 0] $trigger]} {
 			set command [string range $text 1 end]
 			set lastbind $first
 			set text [join [lreplace [split $text] 0 0]]
+			putlog "#2 bind = $lastbind / command = $command / text = $text"
 		} else {
-			if {[ismodule badwords]} {
+			if {[service::ismodule badwords]} {
 				if {[catch {set r [service badwords processline $nickname $hostname $handle $channel $text]} err]} {
 					putlog "ERROR: Could not processline for badwords:"
 					foreach li [split $err \n] {
