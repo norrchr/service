@@ -21,7 +21,7 @@ namespace eval commands {
 		set li [list]
 		foreach {ele val} [array get res] {
 			if {$ele eq ""} { continue }
-			set a [string map ":${ele}: $val" $arg]
+			set a [string map ":${ele}: \{$val\}" $arg]
 			putlog "$a"
 			lappend li $a
 		}
@@ -93,8 +93,8 @@ namespace eval commands {
 			set arr(hostname) $hostname
 			set arr(handle) $handle
 			set arr(channel) $channel
-			set arr(text) $text
-			set arr(lastbind) $lastbind
+			set arr(text) \{$text\}
+			set arr(lastbind) \{$lastbind\}
 			set arr(command) $command
 			set arr(botnick) $botnick
 			if {[catch {$function [expr {$arguments ne "" ? "" : [processargs $arguments [array get arr]]}]} err]} {
