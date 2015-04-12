@@ -4547,5 +4547,7 @@ namespace eval service {
 	
 	upgrade	
 	loaded
+	
+	namespace ensemble create
 
 }

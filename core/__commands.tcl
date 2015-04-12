@@ -2,7 +2,7 @@ namespace eval commands {
 
 	#bind pubm - "*" [namespace current]::handler
 
-	variable version "1.1.2"
+	variable version "1.1.3"
 
 	array set bind2proc {}
 	
@@ -237,7 +237,7 @@ namespace eval commands {
 				# global nothing
 				return 600
 			}
-		} elseif {![validchannel $channel]} {
+		} elseif {![validchan $channel]} {
 			return 0
 		} else {
 			if {[matchattr $handle ADn|n $channel]} {
