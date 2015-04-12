@@ -2,7 +2,10 @@ namespace eval commands {
 
 	#bind pubm - "*" [namespace current]::handler
 
-	variable version "1.1.3"
+	variable version "1.1.4"
+	
+	namespace export register deregister registered level2cmds cmd2level handle2level
+	namespace ensemble create
 
 	array set bind2proc {}
 	
@@ -288,9 +291,6 @@ namespace eval commands {
 			}
 		}
 	}
-	
-	namespace export register deregister registered level2cmds cmd2level handle2level
-	namespace ensemble create
 	
 	putlog "[namespace current] version $version loaded."
 	
