@@ -45,13 +45,15 @@ namespace eval commands {
 		} else {
 			set trigger $dtrigger
 		}
+		putlog "trigger = $trigger / dtrigger = $dtrigger"
 		set first [lindex [split $text] 0]
 		if {[string equal -nocase $botnick $first]} {
 			set command [lindex [split $text] 1]
 			set lastbind "$first $command"
 			set text [join [lreplace [split $text] 0 1]]
 			putlog "#1 bind = $lastbind / command = $command / text = $text"
-		} elseif {[lsearch -exact [string index $first 0] $triggers]>=0 && [string equal -nocase [string index $first 0] $trigger]} {
+			# [lsearch -exact [string index $first 0] $triggers]>=0
+		} elseif {[string equal -nocase [string index $first 0] $trigger]} {
 			set command [string range $text 1 end]
 			set lastbind $first
 			set text [join [lreplace [split $text] 0 0]]
