@@ -94,25 +94,27 @@ namespace eval commands {
 			}
 			set bind $bind2proc([string tolower $command],$cmdl)
 			set function [lindex [split $bind] 0]
-			set arguments [join [lrange $bind 1 end]]
-			array set arr {}
-			set arr(nickname) $nickname
-			set arr(hostname) $hostname
-			set arr(handle) $handle
-			set arr(channel) $channel
-			set arr(text) \{$text\}
-			set arr(lastbind) \{$lastbind\}
-			set arr(command) $command
-			set arr(botnick) $botnick
+			#set arguments [join [lrange $bind 1 end]]
+			#array set arr {}
+			#set arr(nickname) $nickname
+			#set arr(hostname) $hostname
+			#set arr(handle) $handle
+			#set arr(channel) $channel
+			#set arr(text) \{$text\}
+			#set arr(lastbind) \{$lastbind\}
+			#set arr(command) $command
+			#set arr(botnick) $botnick
 			#if {[catch {$function [expr {$arguments ne "" ? "" : [processargs $arguments [array get arr]]}]} err]}
-			if {[catch {$function [set values [processargs $arguments [array get arr]]]} err]} {
+			#if {[catch {$function [set values [processargs $arguments [array get arr]]]} err]} {
+			if {[catch {$function $nickname $hostname $handle $channel $text} err]} {
 				putserv "NOTICE $nickname :ERROR: There was an error whilst processing '$command'. (This error has been reported to bot admins)"
 				set rc [service getconf core adminchan]
 				putserv "PRIVMSG $rc :An error occurred whilst processing '$command' for $nickname ($handle):"
-				putserv "PRIVMSG $rc :Function: $function - Arguments: [expr {$arguments eq "" ? "N/A" : $arguments}]"
-				if {$values ne ""} {
-					putserv "PRIVMSG $rc :Values ([llength $values]): $values"
-				}
+				putserv "PRIVMSG $rc :Function: $function - Arguments: \"$nickname\" \"$hostname\" \"$handle\" \"$channel\" \{$text\}"
+				#putserv "PRIVMSG $rc :Function: $function - Arguments: [expr {$arguments eq "" ? "N/A" : $arguments}]"
+				#if {$values ne ""} {
+				#	putserv "PRIVMSG $rc :Values ([llength $values]): $values"
+				#}
 				foreach li [split $err \n] {
 					if {$li eq ""} { continue }
 					putserv "PRIVMSG $rc :$li"
