@@ -12,6 +12,7 @@ namespace eval commands {
 	proc processargs {arg arr} {
 		array set res $arr
 		if {[llength [array names res]] <= 0} { return $arg }
+		set li [list]
 		foreach v [split $arg " "] {
 			if {$v eq ""} { lappend li ""; continue }
 			if {[string index $v 0] eq ":" && [string index $v end] eq ":"} {
