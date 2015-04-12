@@ -220,7 +220,8 @@ namespace eval commands {
 		variable bind2proc
 		if {$command eq ""} { return 0 }
 		if {[llength [array names bind2proc]]<=0} { return 0 }
-		foreach {b l} [split [array names bind2proc] ,] {
+		foreach b [array names bind2proc] {
+			foreach {b l} [split $b ,] { break }
 			if {[string equal -nocase $command $b]} {
 				return 1
 			}
