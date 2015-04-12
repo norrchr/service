@@ -104,13 +104,13 @@ namespace eval commands {
 			set arr(lastbind) \{$lastbind\}
 			set arr(command) $command
 			set arr(botnick) $botnick
-			if {[catch {$function [expr {$arguments ne "" ? "" : [processargs $arguments [array get arr]]}]} err]} {
+			#if {[catch {$function [expr {$arguments ne "" ? "" : [processargs $arguments [array get arr]]}]} err]}
+			if {[catch {$function [set values [processargs $arguments [array get arr]]]} err]} {
 				putserv "NOTICE $nickname :ERROR: There was an error whilst processing '$command'. (This error has been reported to bot admins)"
 				set rc [service getconf core adminchan]
 				putserv "PRIVMSG $rc :An error occurred whilst processing '$command' for $nickname ($handle):"
 				putserv "PRIVMSG $rc :Function: $function - Arguments: [expr {$arguments eq "" ? "N/A" : $arguments}]"
-				if {$arguments ne ""} {
-					set values [list [processargs $arguments [array get arr]]]
+				if {$values ne ""} {
 					putserv "PRIVMSG $rc :Values ([llength $values]): $values"
 				}
 				foreach li [split $err \n] {
