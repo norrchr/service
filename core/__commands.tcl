@@ -38,23 +38,20 @@ namespace eval commands {
 	proc handler {nickname hostname handle channel text} {
 		global botnick lastbind; variable dtrigger; variable triggers; variable bind2proc
 		if {[validuser $handle]} {
-			set trigger [getuser $handle XTRA trigger]
-			putlog "user trigger = $trigger"
-			if {$trigger eq ""} {
-				setuser $handle XTRA trigger [set trigger $dtrigger]
+			set trigger [getuser $handle XTRA mytrigger]
+			if {$trigger eq "" || [lsearch -exact $trigger $triggers]<0} {
+				setuser $handle XTRA mytrigger [set trigger $dtrigger]
 			}
 		} else {
 			set trigger $dtrigger
 		}
-		putlog "trigger = $trigger / dtrigger = $dtrigger"
 		set first [lindex [split $text] 0]
 		if {[string equal -nocase $botnick $first]} {
 			set command [lindex [split $text] 1]
 			set lastbind "$first $command"
 			set text [join [lreplace [split $text] 0 1]]
 			putlog "#1 bind = $lastbind / command = $command / text = $text"
-			# [lsearch -exact [string index $first 0] $triggers]>=0
-		} elseif {[string equal -nocase [string index $first 0] $trigger]} {
+		} elseif {[lsearch -exact [string index $first 0] $triggers]>=0 && [string equal -nocase [string index $first 0] $trigger]} {
 			set command [string range $text 1 end]
 			set lastbind $first
 			set text [join [lreplace [split $text] 0 0]]
