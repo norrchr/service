@@ -21,8 +21,10 @@ namespace eval commands {
 		set li [list]
 		foreach {ele val} [array get res] {
 			if {$ele eq ""} { continue }
-			set a [string map ":${ele}: \{$val\}" $arg]
-			putlog "$a"
+			set a [join [string map ":${ele}: $val" $arg]]
+			if {$val ne ""} {
+				putlog "$ele = $a"
+			}
 			lappend li $a
 		}
 		return $li
