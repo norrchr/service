@@ -136,7 +136,8 @@ namespace eval commands {
 	proc register {bind level func args} {
 		variable bind2proc
 		if {($bind eq "" || $bind eq ",") || $level eq "" || $func eq ""} { return 0 }
-		foreach b [string tolower [split $bind ,]] {
+		set bind [string tolower $bind]
+		foreach b [split $bind ,] {
 			if {$b eq ""} { continue }
 			set bind2proc($b,$level) "$func [join $args]"
 		}
@@ -178,7 +179,7 @@ namespace eval commands {
 				set l [lindex [split $e] 1]
 				set f [lindex [split $v] 0]
 				set a [join [lrange $v 1 end]]
-				if {[string match -nocase $args $b] || [string match -nocase $args $l] || [string match -nocase $args $f]} {
+				if {[string match -nocase [join $args] $b] || [string match -nocase [join $args] $l] || [string match -nocase [join $args] $f]} {
 					lappend l "$b $l $f $a"
 				}
 			}
