@@ -29,17 +29,11 @@ namespace eval commands {
 				lappend $v
 			}
 		}
-		return $li		
-		#set map [list]
-		#foreach {ele val} [array get res] {
-		#	if {$ele eq "" || $val eq ""} { continue }
-		#	lappend map ":${ele}: \{$val\}"
-		#}
-		#return [list [string map [join $map] $arg]]
+		return $li
 	}
 	
 	proc handler {nickname hostname handle channel text} {
-		global botnick lastbind; variable dtrigger; variable triggers; variable bind2proc
+		global botnick lastbind lasttrigger lastcommand; variable dtrigger; variable triggers; variable bind2proc
 		if {[validuser $handle]} {
 			set trigger [getuser $handle XTRA mytrigger]
 			if {$trigger eq ""} {
@@ -48,19 +42,18 @@ namespace eval commands {
 		} else {
 			set trigger $dtrigger
 		}
-		putlog "trigger = $trigger / dtrigger = $dtrigger"
 		set first [lindex [split $text] 0]
 		if {[string equal -nocase $botnick $first]} {
-			set command [lindex [split $text] 1]
-			set lastbind "$first $command"
+			set lasttrigger $first
+			set lastcommand [lindex [split $text] 1]
+			set lastbind "$first $lastcommand"
 			set text [join [lreplace [split $text] 0 1]]
-			putlog "#1 bind = $lastbind / command = $command / text = $text"
 			# [lsearch -exact [string index $first 0] $triggers]>=0
 		} elseif {[string equal -nocase [string index $first 0] $trigger]} {
-			set command [string range $text 1 end]
+			set lasttrigger [string index $first 0]
+			set lastcommand [string range $text 1 end]
 			set lastbind $first
 			set text [join [lreplace [split $text] 0 0]]
-			putlog "#2 bind = $lastbind / command = $command / text = $text"
 		} else {
 			if {[service::ismodule badwords]} {
 				if {[catch {set r [service badwords processline $nickname $hostname $handle $channel $text]} err]} {
@@ -80,26 +73,26 @@ namespace eval commands {
 		if {![validcommand $command]} {
 			putserv "NOTICE $nickname :ERROR: Unknown command '$command'."; return
 		} else {
-			set cmdl [cmd2level $command]
+			set cmdl [cmd2level $lastcommand]
 			if {$cmdl >= 600} {
 				# global command
 				set usrl [handle2level $handle]
 				if {$cmdl > $usrl} {
-					putserv "NOTICE $nickname :ERROR: You do not have the required access to use '$command."; return
+					putserv "NOTICE $nickname :ERROR: You do not have the required access to use '$lastcommand."; return
 				}
 			} elseif {$cmdl <= 500} {
 				# channel command
 				set usrl [handle2level $handle $channel]
 				if {$cmdl > $usrl} {
-					putserv "NOTICE $nickname :ERROR: You do not have the required access to use '$command' on $channel."; return
+					putserv "NOTICE $nickname :ERROR: You do not have the required access to use '$lastcommand' on $channel."; return
 				}
 			} else {
 				putserv "NOTICE $nickname :ERROR: An error occurred whilst checking your access level."; return
 			}
-			if {![info exists bind2proc([string tolower $command],$cmdl)]} {
-				putserv "NOTICE $nickname :ERROR: Failed to grab '$command' function from command registry."; return
+			if {![info exists bind2proc([string tolower $lastcommand],$cmdl)]} {
+				putserv "NOTICE $nickname :ERROR: Failed to grab '$lastcommand' function from command registry."; return
 			}
-			set bind $bind2proc([string tolower $command],$cmdl)
+			set bind $bind2proc([string tolower $lastcommand],$cmdl)
 			set function [lindex [split $bind] 0]
 			#set arguments [join [lrange $bind 1 end]]
 			#array set arr {}
@@ -114,9 +107,9 @@ namespace eval commands {
 			#if {[catch {$function [expr {$arguments ne "" ? "" : [processargs $arguments [array get arr]]}]} err]}
 			#if {[catch {$function [set values [processargs $arguments [array get arr]]]} err]}
 			if {[catch {$function $nickname $hostname $handle $channel $text} err]} {
-				putserv "NOTICE $nickname :ERROR: There was an error whilst processing '$command'. (This error has been reported to bot admins)"
+				putserv "NOTICE $nickname :ERROR: There was an error whilst processing '$lastcommand'. (This error has been reported to bot admins)"
 				set rc [service getconf core adminchan]
-				putserv "PRIVMSG $rc :An error occurred whilst processing '$command' for $nickname ($handle):"
+				putserv "PRIVMSG $rc :An error occurred whilst processing '$lastcommand' for $nickname ($handle):"
 				putserv "PRIVMSG $rc :Function: $function - Arguments: \"$nickname\" \"$hostname\" \"$handle\" \"$channel\" \{$text\}"
 				#putserv "PRIVMSG $rc :Function: $function - Arguments: [expr {$arguments eq "" ? "N/A" : $arguments}]"
 				#if {$values ne ""} {
