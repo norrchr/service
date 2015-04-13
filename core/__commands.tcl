@@ -70,8 +70,8 @@ namespace eval commands {
 			# call other modules here
 			return
 		}
-		if {![validcommand $command]} {
-			putserv "NOTICE $nickname :ERROR: Unknown command '$command'."; return
+		if {![validcommand $lastcommand]} {
+			putserv "NOTICE $nickname :ERROR: Unknown command '$lastcommand'."; return
 		} else {
 			set cmdl [cmd2level $lastcommand]
 			if {$cmdl >= 600} {
@@ -102,7 +102,7 @@ namespace eval commands {
 			#set arr(channel) $channel
 			#set arr(text) \{$text\}
 			#set arr(lastbind) \{$lastbind\}
-			#set arr(command) $command
+			#set arr(command) $lastcommand
 			#set arr(botnick) $botnick
 			#if {[catch {$function [expr {$arguments ne "" ? "" : [processargs $arguments [array get arr]]}]} err]}
 			#if {[catch {$function [set values [processargs $arguments [array get arr]]]} err]}
