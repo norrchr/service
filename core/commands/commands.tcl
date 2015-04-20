@@ -15,7 +15,7 @@ proc commands_cmd {nickname hostname handle channel text} {
 		putserv "NOTICE $nickname :You have no $channel commands available to you."
 	} else {
 		putserv "NOTICE $nickname :You have [llength $chancmds] $channel command(s) available to you: (trigger: $trig)"
-		putserv "NOTICE $nickname :[join $chancmds ", "]"
+		putserv "NOTICE $nickname :[join [lsort $chancmds] ", "]"
 	}
 	if {[set globallevel [service commands handle2level $handle]] <= 600} {
 		putserv "NOTICE $nickname :You are not known on $channel and have no access to channel commands."
@@ -23,7 +23,7 @@ proc commands_cmd {nickname hostname handle channel text} {
 		putserv "NOTICE $nickname :You have no global commands available to you."
 	} else {
 		putserv "NOTICE $nickname :You have [llength $globalcmds] global command(s) available to you: (trigger: $trig)"
-		putserv "NOTICE $nickname :[join $globalcmds ", "]"
+		putserv "NOTICE $nickname :[join [lsort $globalcmds] ", "]"
 	}	
 	putserv "NOTICE $nickname :End of commands list."
 }
