@@ -1,0 +1,83 @@
+[core]
+homechan=#private
+adminchan=#private
+helpchan=#private
+trigger=$
+triggers=$ ! ? & * % ^ - + ~
+
+[modules]
+core=1
+whois=1
+auth=0
+
+authban=0
+badchan=0
+vip=1
+
+chanlev=1
+clonescan=1
+flyby=1
+
+broadcast=0
+spamscan=0
+
+[whois]
+delay=5
+
+[authban]
+kickmsg=Your authname (:authname:) is banned from :channel: - ID: :id:
+bantime=120
+
+[badchan]
+kickmsg=Your present on :count: badchannel(s) (:badchan:) and therefore banned from :channel: - ID: :id:
+bantime=120
+
+globnonblock=authname
+authname=processauthname :nickname: :authname:
+
+chanblock=authban badchan vip
+authban=processchannel :channel: :results:
+badchan=processchannel :channel: :results:
+vip=processchannel :channel: :results:
+
+[script]
+path=scripts/service.tcl
+
+[randomkickmsg]
+1=You're outta here!
+2=Don't get butthurt...
+3=Sorry.. It just wasn't meant to be :(
+4=I feel da powahh!
+5=You got booted . com!1!1!1
+6=Your not cool enough for this channel >{;_;}<
+7=It's nothing personal... i think?
+8=It wasn't me, It was my master!
+9=Who let the bot out? My master did!
+10=Sometimes there has to come an end, unfortunately your time is now :(
+
+[kickmsg]
+defaultreason=!rand_fromsection randomkickmsg || none specified
+defaultban=You are BANNED from this channel
+protection=You are not allowed to :violate: on :channel: - (ID: :id:) - (by :homechan:)
+badchan=Killed (:channel: (Detected on bad channel(s) ':badchan:' - (ID: :id:)))
+authban=Killed (:channel: (Your authname ':authname:' is banned! - (ID: :id:)))
+known=Killed (:channel: (Authorized users only! - (ID: :id:)))
+badword=Killed (:channel: (Detected :found: badword(s): :badword: - (ID: :id:)))
+antiadvertise=Killed (:channel: (Advertising in :channel: is disallowed! - (ID: :id:)))
+clonescan=Killed (:channel: (Too many clones from your host ':hostname:' (:clones:/:maxclones:) - (ID: :id:)))
+gban=You are GLOBAL BANNED by :homechan: staff - (Reason: :reason:) - (Global-ID: :id:)
+userkick=You were kicked on :channel: by :nickname: - Reason: :reason: - (ID: :id:)
+userban=You are banned from :channel: by :nickname: - (Reason: :reason:) - (ID: :id:)
+
+[vip]
+skin=Welcome to :channel: :nickname: - You will receive :status: due to being vip on :count: channels - #:id:
+mode=+
+dynamicmode=0
+chanmode=1
+	
+[welcome]
+skin=[:channel: - :date: - :time:] Welcome :nickname: (:hostname:) to our channel! Please stay to support us! (JoinID: #:id:)
+
+[netsplit]
+start=Netsplit detected - Some functions have been disabled
+end=Netsplit considered over after :time: - All functions enabled again
