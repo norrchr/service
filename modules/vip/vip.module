@@ -126,6 +126,15 @@ namespace eval vip {
 		return 0
 	}
 	
+	proc helper_xtra_set {what handle arg} {
+		if {![validuser $handle]} { return }
+		if {$what == "lastcmd"} {
+			setuser $handle XTRA lastcmd "$arg"
+			setuser $handle XTRA lastcmdset "[clock seconds]"
+			setuser $handle XTRA cmdcount "[expr {[getuser $handle XTRA cmdcount]+1}]"
+		}
+	}
+	
 	proc loadcommands {} {
 		set commands [globr scripts/service/modules/vip/commands *.tcl]
 		if {[llength $commands] <= 0} {
