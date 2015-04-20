@@ -182,9 +182,9 @@ namespace eval commands {
 	
 	proc level2cmds {max {min {0}}} {
 		variable bind2proc
-		set l [list]
-		if {[llength [array names bind2proc]]<=0} { return $l }
-		if {![string is digit $max]} { return $l }
+		set li [list]
+		if {[llength [array names bind2proc]]<=0} { return $li }
+		if {![string is digit $max]} { return $li }
 		if {$min eq ""} {
 			set min $max
 		} elseif {$min > $max} {
@@ -196,12 +196,11 @@ namespace eval commands {
 			if {$e eq ""} { continue }
 			set b [lindex [split $e ,] 0]
 			set l [lindex [split $e ,] 1]
-			putlog "$b => $l"
 			if {$l >= $min && $l <= $max} {
-				lappend l $b
+				lappend li $b
 			}
 		}
-		return [join $l " "]
+		return [join $li " "]
 	}
 	
 	proc cmd2level {command} {
@@ -222,7 +221,8 @@ namespace eval commands {
 		if {$command eq ""} { return 0 }
 		if {[llength [array names bind2proc]]<=0} { return 0 }
 		foreach e [array names bind2proc] {
-			foreach {b l} [split $e ,] { break }
+			set b [lindex [split $e ,] 0]
+			set l [lindex [split $e ,] 1]
 			if {[string equal -nocase $command $b]} {
 				return 1
 			}
