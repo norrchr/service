@@ -1,4 +1,4 @@
-service::commands::register errorinfo 950 errorinfo_cmd
+service::commands::register errorinfo 950 [namespace current]::errorinfo_cmd
 
 proc errorinfo_cmd {nickname hostname handle channel text} {
 	global lastbind
