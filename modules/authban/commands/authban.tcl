@@ -1,8 +1,7 @@
-proc authban {nickname hostname handle channel lastbind text} {
-	if {![matchattr $handle nm|nm $channel]} {
-		puthelp "NOTICE $nickname :You have no access to this command."
-		return 
-	}
+service::commands::register authban 450 [namespace current]::authban
+
+proc authban {nickname hostname handle channel text} {
+	global lastbind
 	helper_xtra_set "lastcmd" $handle "$channel $lastbind $text"
 	set command [string tolower [lindex [split $text] 0]]
 	set arg [join [lrange $text 1 end]]

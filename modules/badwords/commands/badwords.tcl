@@ -1,6 +1,6 @@
 service::commands::register badwords,badword 450 [namespace current]::badwords
 
-proc badwords {nickname hostname handle channel lastbind text} {
+proc badwords {nickname hostname handle channel text} {
 	global lastbind
 	helper_xtra_set "lastcmd" $handle "$channel $lastbind $text"
 	set command [string tolower [lindex [split $text] 0]]

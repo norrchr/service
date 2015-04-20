@@ -1,8 +1,7 @@
+service::commands::register vip 450 [namespace current]::vip
+
 proc vip {nickname hostname handle channel lastbind text} {
-	if {![matchattr $handle ADnmS|nmS $channel]} {
-		puthelp "NOTICE $nickname :You have no access to this command."
-		return 
-	}
+	global lastbind
 	helper_xtra_set "lastcmd" $handle "$channel $lastbind $text"
 	set command [string tolower [lindex [split $text] 0]]
 	set arg [join [lrange $text 1 end]]
