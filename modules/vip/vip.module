@@ -1,6 +1,6 @@
 namespace eval vip {
 
-	namespace import [namespace parent]::globr
+	source scripts/service/modules/__globr.tcl
 	
 	setudef flag service_vip; # The vip flag
 	setudef flag service_vips; # The show vip skin flag

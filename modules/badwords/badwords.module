@@ -1,7 +1,6 @@
 namespace eval badwords {
 
-	namespace import [namespace parent]::globr
-
+	source scripts/service/modules/__globr.tcl
 	variable version "1.0.0"
 
 	setudef flag service_badword
