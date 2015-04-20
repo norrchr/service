@@ -194,10 +194,9 @@ namespace eval commands {
 		}
 		foreach e [array names bind2proc] {
 			if {$e eq ""} { continue }
-			set b [lindex [split $e] 0]
-			set l [lindex [split $e] 1]
+			foreach {b l} [split $e ,] { break }
 			if {$l >= $min && $l <= $max} {
-				lappend l $e
+				lappend l $b
 			}
 		}
 		return [join $l " "]
@@ -209,7 +208,6 @@ namespace eval commands {
 		if {[llength [array names bind2proc]]<=0} { return -1 }
 		foreach b [array names bind2proc] {
 			if {$b eq ""} { continue }
-			foreach {b l} [split $b ,] { break }
 			if {[string equal -nocase $command $b]} {
 				return $l
 			}
@@ -221,8 +219,8 @@ namespace eval commands {
 		variable bind2proc
 		if {$command eq ""} { return 0 }
 		if {[llength [array names bind2proc]]<=0} { return 0 }
-		foreach b [array names bind2proc] {
-			foreach {b l} [split $b ,] { break }
+		foreach e [array names bind2proc] {
+			foreach {b l} [split $e ,] { break }
 			if {[string equal -nocase $command $b]} {
 				return 1
 			}
