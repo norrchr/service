@@ -1,5 +1,7 @@
 namespace eval vip {
 
+	namespace import [namespace parent]::globr
+	
 	setudef flag service_vip; # The vip flag
 	setudef flag service_vips; # The show vip skin flag
 	setudef flag service_vipn; # The notice vip skin flag

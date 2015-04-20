@@ -33,7 +33,7 @@ proc loadmodules {} {
 			putlog "Attempting to load '$name' module (Path: $module):"
 			if {[catch {source $module} err]} {
 				putlog "Error loading module '$name' (Path: $module):"
-				foreach li $err {
+				foreach li [split $err \n] {
 					putlog "${name} error: $li"
 				}
 				putlog "${name} end of error."
@@ -58,7 +58,7 @@ proc loadmodule {module} {
 		} else {
 			if {[catch {source $module} err]} {
 				putlog "Error loading module '$name' (Path: $module):"
-				foreach li $err {
+				foreach li [split $err \n] {
 					putlog "${name} error: $li"
 				}
 				putlog "${name} end of error."; return 0

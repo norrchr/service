@@ -1,5 +1,7 @@
 namespace eval badchan {
 
+	namespace import [namespace parent]::globr
+
 	setudef flag service_badchan; # The authbans flag
 	setudef str service_kickmsg_badchan
 	setudef str service_badchans

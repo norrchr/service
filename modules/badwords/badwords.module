@@ -1,5 +1,7 @@
 namespace eval badwords {
 
+	namespace import [namespace parent]::globr
+
 	variable version "1.0.0"
 
 	setudef flag service_badword
