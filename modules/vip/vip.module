@@ -124,6 +124,31 @@ namespace eval vip {
 		return 0
 	}
 	
+	proc loadcommands {} {
+		set commands [globr scripts/service/modules/vip/commands *.tcl]
+		if {[llength $commands] <= 0} {
+			putlog "No vip commands detected"; return
+		} else {
+			putlog "Detected [llength $commands] vip command(s): [join $commands ", "]"
+			foreach command $commands {
+				if {$command eq ""} { continue }
+				set name [lindex [split [file tail $command] .] 0]
+				#putlog "Attempting to load '$name' command (Path: $command):"
+				if {[catch {source $command} err]} {
+					putlog "Error loading command '$name' (Path: $command):"
+					foreach li $err {
+						putlog "${name} error: $li"
+					}
+					putlog "${name} end of error."
+				} else {
+					putlog "${name} vip command successfully loaded."
+				}
+			}
+		}
+	}
+
+	loadcommands
+	
 	putlog "[namespace current] version $version loaded."
 	
 }

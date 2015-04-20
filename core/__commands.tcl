@@ -1,6 +1,6 @@
 namespace eval commands {
 
-	#bind pubm - "*" [namespace current]::handler
+	bind pubm - "*" [namespace current]::handler
 
 	variable version "1.1.4"
 	
@@ -80,13 +80,13 @@ namespace eval commands {
 				if {$cmdl > $usrl} {
 					putserv "NOTICE $nickname :ERROR: You do not have the required access to use '$lastcommand."; return
 				}
-			} elseif {$cmdl <= 500} {
+			} elseif {$cmdl<=500 && $cmdl>=0} {
 				# channel command
 				set usrl [handle2level $handle $channel]
 				if {$cmdl > $usrl} {
 					putserv "NOTICE $nickname :ERROR: You do not have the required access to use '$lastcommand' on $channel."; return
 				}
-			} else {
+			} elseif {$cmdl ne -1} {
 				putserv "NOTICE $nickname :ERROR: An error occurred whilst checking your access level."; return
 			}
 			if {![info exists bind2proc([string tolower $lastcommand],$cmdl)]} {
@@ -289,3 +289,5 @@ namespace eval commands {
 	putlog "[namespace current] version $version loaded."
 	
 }
+
+namespace export commands

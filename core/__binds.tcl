@@ -1,5 +1,4 @@
 bind evnt - "*" [namespace current]::onevnt
-bind pubm - "*" [namespace current]::onpubm	
 bind join - "*" [namespace current]::onjoin
 bind part - "*" [namespace current]::onpart
 bind sign - "*" [namespace current]::onquit
