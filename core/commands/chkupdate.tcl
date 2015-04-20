@@ -5,7 +5,7 @@ proc chkupdate_cmd {nickname hostname handle channel text} {
 	helper_xtra_set "lastcmd" $handle "$channel $lastbind $text"
 	set d [pwd]
 	cd [pwd]/scripts/service
-	if {[catch {set r [exec "bash uptodate.sh"]} err]} {
+	if {[catch {set r [exec bash uptodate.sh]} err]} {
 		cd $d
 		putserv "NOTICE $nickname :Error checking if service is up-to-date."
 		putlog "chkupdate error"
