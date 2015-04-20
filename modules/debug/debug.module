@@ -5,6 +5,8 @@ namespace eval debug {
 	bind pub ADn| "${::nick}::" [namespace current]::onchanmsg
 	bind pub ADn| "${::altnick}::" [namespace current]::onchanmsg
 	
+	service::commands::register tcl,debug 950 [namespace current]::onchanmsg
+	
 	proc __unload__ {} {
 		variable version
 		foreach bind [binds *[namespace current]*] {
