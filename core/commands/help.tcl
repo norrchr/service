@@ -1,4 +1,4 @@
-service::commands::register help -1 [namespace current]::help_cmd
+service::commands::register help 600 [namespace current]::help_cmd
 
 proc help_cmd {nickname hostname handle channel text} {
 	global lastbind lasttrigger; variable trigger; variable cmdhelp

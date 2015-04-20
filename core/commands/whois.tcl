@@ -1,4 +1,4 @@
-service::commands::register whois -1 [namespace current]::whois_cmd
+service::commands::register whois 600 [namespace current]::whois_cmd
 
 proc whois_cmd {nickname hostname handle channel text} {
 	global lastbind

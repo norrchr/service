@@ -1,4 +1,4 @@
-service::commands::register whoami -1 [namespace current]::whoami_cmd
+service::commands::register whoami 600 [namespace current]::whoami_cmd
 
 proc whoami_cmd {nickname hostname handle channel text} {
 	if {[matchattr $handle S|S $channel]} { return }
