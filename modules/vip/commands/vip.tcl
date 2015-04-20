@@ -1,6 +1,6 @@
 service::commands::register vip 450 [namespace current]::vip
 
-proc vip {nickname hostname handle channel lastbind text} {
+proc vip {nickname hostname handle channel text} {
 	global lastbind
 	helper_xtra_set "lastcmd" $handle "$channel $lastbind $text"
 	set command [string tolower [lindex [split $text] 0]]
