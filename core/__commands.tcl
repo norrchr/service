@@ -194,7 +194,9 @@ namespace eval commands {
 		}
 		foreach e [array names bind2proc] {
 			if {$e eq ""} { continue }
-			foreach {b l} [split $e ,] { break }
+			set b [lindex [split $e ,] 0]
+			set l [lindex [split $e ,] 1]
+			putlog "$b => $l"
 			if {$l >= $min && $l <= $max} {
 				lappend l $b
 			}
