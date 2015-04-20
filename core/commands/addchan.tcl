@@ -1,4 +1,4 @@
-service::commands::register addchan,join,+chan 950 addchan_cmd
+service::commands::register addchan,join,+chan 950 [namespace current]::addchan_cmd
 
 proc addchan_cmd {nickname hostname handle channel text} {
 	global lastbind

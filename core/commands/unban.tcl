@@ -1,4 +1,4 @@
-service::commands::register unban 400 unban_cmd
+service::commands::register unban 400 [namespace current]::unban_cmd
 
 proc unban_cmd {nickname hostname handle channel text} {
 	global lastbind lasttrigger

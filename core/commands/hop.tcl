@@ -1,4 +1,4 @@
-service::commands::register hop 850 hop_cmd
+service::commands::register hop 850 [namespace current]::hop_cmd
 
 proc hop_cmd {nickname hostname handle channel text} {
 	global lastbind

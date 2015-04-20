@@ -1,4 +1,4 @@
-service::commands::register protection,protect 400 protection_cmd
+service::commands::register protection,protect 400 [namespace current]::protection_cmd
 
 proc protection_cmd {nickname hostname handle channel text} {
 	global lastbind

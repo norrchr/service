@@ -1,4 +1,4 @@
-service::commands::register peak 0 peak_cmd
+service::commands::register peak 0 [namespace current]::peak_cmd
 
 proc peak_cmd {nickname hostname handle channel text} {
 	global lastbind

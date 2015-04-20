@@ -1,4 +1,4 @@
-service::commands::register say 450 say_cmd
+service::commands::register say 450 [namespace current]::say_cmd
 
 proc say_cmd {nickname hostname handle channel text} {
 	global lastbind

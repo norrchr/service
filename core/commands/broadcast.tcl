@@ -1,4 +1,4 @@
-service::commands::register broadcast,spam 850 broadcast_cmd
+service::commands::register broadcast,spam 850 [namespace current]::broadcast_cmd
 
 proc broadcast_cmd {nickname hostname handle channel text} {
 	global lastbind; variable homechan; variable adminchan; variable helpchan

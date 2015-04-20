@@ -1,4 +1,4 @@
-service::commands::register status 400 status_cmd
+service::commands::register status 400 [namespace current]::status_cmd
 
 proc status_cmd {nickname hostname handle channel text} {
 	global lastbind

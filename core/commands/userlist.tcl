@@ -1,4 +1,4 @@
-service::commands::register userlist 350 userlist_cmd
+service::commands::register userlist 350 [namespace current]::userlist_cmd
 
 proc userlist_cmd {nickname hostname handle channel text} {
 	global lastbind

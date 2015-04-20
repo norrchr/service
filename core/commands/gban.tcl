@@ -1,4 +1,4 @@
-service::commands::register gban 850 gban_cmd
+service::commands::register gban 850 [namespace current]::gban_cmd
 
 proc gban_cmd {nickname hostname handle channel text} {
 	global lastbind; variable homechan; variable adminchan; variable kickmsg

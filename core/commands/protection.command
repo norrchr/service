@@ -1,3 +1,5 @@
+service::commands::register protection,protect 450 [namespace current]::protection_cmd
+
 proc protection_cmd {nickname hostname handle channel text} {
 	global lastbind
 	helper_xtra_set "lastcmd" $handle "$channel $lastbind $text"

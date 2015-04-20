@@ -1,4 +1,4 @@
-service::commands::register enforcemodes 450 enforcemodes_cmd
+service::commands::register enforcemodes 450 [namespace current]::enforcemodes_cmd
 
 proc enforcemodes_cmd {nickname hostname handle channel text} {
 	global lastbind

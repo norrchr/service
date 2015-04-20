@@ -1,4 +1,4 @@
-service::commands::register invite 300 invite_cmd
+service::commands::register invite 300 [namespace current]::invite_cmd
 
 proc invite_cmd {nickname hostname handle channel text} {
 	global lastbind

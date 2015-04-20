@@ -1,4 +1,4 @@
-service::commands::register deluser 450 deluser_cmd
+service::commands::register deluser 450 [namespace current]::deluser_cmd
 
 proc deluser_cmd {nickname hostname handle channel text} {
 	global lastbind lasttrigger

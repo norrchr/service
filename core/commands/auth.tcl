@@ -1,4 +1,4 @@
-service::commands::register auth 850 auth_cmd
+service::commands::register auth 850 [namespace current]::auth_cmd
 
 proc auth_cmd {nickname hostname handle channel text} {
 	global lastbind

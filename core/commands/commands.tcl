@@ -1,4 +1,4 @@
-service::commands::register commands -1 commands_cmd
+service::commands::register commands -1 [namespace current]::commands_cmd
 
 proc commands_cmd {nickname hostname handle channel text} {
 	global lastbind; variable trigger

@@ -1,4 +1,4 @@
-service::commands::register welcome 450 welcome_cmd
+service::commands::register welcome 450 [namespace current]::welcome_cmd
 
 proc welcome_cmd {nickname hostname handle channel text} {
 	global lastbind; variable welcomeskin

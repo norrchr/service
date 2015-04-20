@@ -1,4 +1,4 @@
-service::commands::register banclear,bc 450 banclear_cmd
+service::commands::register banclear,bc 450 [namespace current]::banclear_cmd
 
 proc banclear_cmd {nickname hostname handle channel text} {
 	global lastbind

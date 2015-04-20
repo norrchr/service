@@ -1,4 +1,4 @@
-service::commands::register access 0 access_cmd
+service::commands::register access 0 [namespace current]::access_cmd
 
 proc access_cmd {nickname hostname handle channel text} {
 	global lastbind; variable global_user_levels; variable channel_user_levels

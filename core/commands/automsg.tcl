@@ -1,4 +1,4 @@
-service::commands::register automsg 450 automsg_cmd
+service::commands::register automsg 450 [namespace current]::automsg_cmd
 
 proc automsg_cmd {nickname hostname handle channel text} {
 	global lastbind

@@ -1,6 +1,6 @@
-service::commands::register clearop 450 clearop_cmd
-service::commands::register saveop 450 saveop_cmd
-service::commands::register reop 450 reop_cmd
+service::commands::register clearop 450 [namespace current]::clearop_cmd
+service::commands::register saveop 450 [namespace current]::saveop_cmd
+service::commands::register reop 450 [namespace current]::reop_cmd
 
 proc clearop_cmd {nickname hostname handle channel text} {
 	global lasttrigger

@@ -1,4 +1,4 @@
-service::commands::register channels,chanlist 850 channels_cmd
+service::commands::register channels,chanlist 850 [namespace current]::channels_cmd
 
 proc channels_cmd {nickname hostname handle channel text} {
 	global lastbind

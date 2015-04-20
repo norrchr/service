@@ -1,4 +1,4 @@
-service::commands::register trigger,mytrigger,trig,trigger 0 trigger_cmd
+service::commands::register trigger,mytrigger,trig,trigger 0 [namespace current]::trigger_cmd
 
 proc trigger_cmd {nickname hostname handle channel text} {
 	global lastbind

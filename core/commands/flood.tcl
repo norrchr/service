@@ -1,4 +1,4 @@
-service::commands::register flood 450 flood_cmd
+service::commands::register flood 450 [namespace current]::flood_cmd
 
 proc flood_cmd {nickname hostname handle channel text} {
 	global lastbind

@@ -1,4 +1,4 @@
-service::commands::register ban,kb 400 ban_cmd
+service::commands::register ban,kb 400 [namespace current]::ban_cmd
 
 proc ban_cmd {nickname hostname handle channel text} {
 	global lastbind

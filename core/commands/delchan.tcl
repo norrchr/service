@@ -1,4 +1,4 @@
-service::commands::register delchan,remchan,part,-chan 950 delchan_cmd
+service::commands::register delchan,remchan,part,-chan 950 [namespace current]::delchan_cmd
 
 proc delchan_cmd {nickname hostname handle channel text} {
 	global lastbind

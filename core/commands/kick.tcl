@@ -1,4 +1,4 @@
-service::commands::register kick 400 kick_cmd
+service::commands::register kick 400 [namespace current]::kick_cmd
 
 proc kick_cmd {nickname hostname handle channel text} {
 	global lastbind; variable kickmsg; variable defaultreason

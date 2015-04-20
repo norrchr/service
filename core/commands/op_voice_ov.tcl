@@ -1,4 +1,4 @@
-service::commands::register op,voice,deop,devoice,ov,deov 350 op_voice_ov_cmds
+service::commands::register op,voice,deop,devoice,ov,deov 350 [namespace current]::op_voice_ov_cmds
 
 proc op_voice_ov_cmds {nickname hostname handle channel text} {
 	global lastbind lastcommand

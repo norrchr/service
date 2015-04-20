@@ -1,4 +1,4 @@
-service::commands::register saveops 450 saveops_cmd
+service::commands::register saveops 450 [namespace current]::saveops_cmd
 
 proc saveops_cmd {nickname hostname handle channel text} {
 	global lastbind; variable saveops

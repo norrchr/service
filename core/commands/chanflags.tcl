@@ -1,4 +1,4 @@
-service::commands::register chanflags 400 chanflags_cmd
+service::commands::register chanflags 400 [namespace current]::chanflags_cmd
 
 proc chanflags_cmd {nickname hostname handle channel text} {
 	global lastbind; variable chanflags

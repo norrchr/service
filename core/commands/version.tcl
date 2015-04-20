@@ -1,4 +1,4 @@
-service::commands::register version -1 version_cmd
+service::commands::register version -1 [namespace current]::version_cmd
 
 proc version_cmd {nickname hostname handle channel text} {
 	global lastbind

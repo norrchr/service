@@ -1,4 +1,4 @@
-service::commands::register chanlev 450 chanlev_cmd
+service::commands::register chanlev 450 [namespace current]::chanlev_cmd
 
 proc chanlev_cmd {nickname hostname handle channel text} {
 	global lastbind

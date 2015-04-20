@@ -1,4 +1,4 @@
-service::commands::register adduser 400 adduser_cmd
+service::commands::register adduser 400 [namespace current]::adduser_cmd
 
 proc adduser_cmd {nickname hostname handle channel text} {
 	global lastbind botnick; variable global_user_levels; variable channel_user_levels; variable trigger; variable adminchan; variable kickmsg

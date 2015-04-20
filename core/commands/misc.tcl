@@ -1,4 +1,4 @@
-service::commands::register flyby,autoop,ao,autovoice,av,known,bitch,bitchmode 450 misc_cmd
+service::commands::register flyby,autoop,ao,autovoice,av,known,bitch,bitchmode 450 [namespace current]::misc_cmd
 
 proc misc_cmd {nickname hostname handle channel text} {
 	global lastbind lastcommand

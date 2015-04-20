@@ -1,4 +1,4 @@
-service::commands::register autolimit 450 autolimit_cmd
+service::commands::register autolimit 450 [namespace current]::autolimit_cmd
 
 proc autolimit_cmd {nickname hostname handle channel text} {
 	global lastbind

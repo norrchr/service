@@ -1,4 +1,4 @@
-service::commands::register topic 450 topic_cmd
+service::commands::register topic 450 [namespace current]::topic_cmd
 
 proc topic_cmd {nickname hostname handle channel text} {
 	global lastbind

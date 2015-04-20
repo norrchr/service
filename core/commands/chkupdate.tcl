@@ -1,4 +1,4 @@
-service::commands::register chkupdate 950 chkupdate_cmd
+service::commands::register chkupdate 950 [namespace current]::chkupdate_cmd
 
 proc chkupdate_cmd {nickname hostname handle channel text} {
 	global lastbind

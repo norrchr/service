@@ -1,4 +1,4 @@
-service::commands::register mode 400 mode_cmd
+service::commands::register mode 400 [namespace current]::mode_cmd
 
 proc mode_cmd {nickname hostname handle channel text} {
 	global lastbind

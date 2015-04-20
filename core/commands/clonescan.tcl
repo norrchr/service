@@ -1,4 +1,4 @@
-service::commands::register clonescan 450 clonescan_cmd
+service::commands::register clonescan 450 [namespace current]::clonescan_cmd
 
 proc clonescan_cmd {nickname hostname handle channel text} {
 	global lastbind; variable bantime; variable clonescan; variable networkservices

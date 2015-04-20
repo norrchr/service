@@ -1,4 +1,4 @@
-service::commands::register gunban 850 gunban_cmd
+service::commands::register gunban 850 [namespace current]::gunban_cmd
 
 proc gunban_cmd {nickname hostname handle channel text} {
 	global lastbind

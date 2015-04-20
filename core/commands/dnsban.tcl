@@ -1,4 +1,4 @@
-service::commands::register dnsban,dkb 400 dnsban_cmd
+service::commands::register dnsban,dkb 400 [namespace current]::dnsban_cmd
 
 proc dnsban_cmd {nickname hostname handle channel text} {
 	global lastbind
