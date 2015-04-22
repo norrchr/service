@@ -13,7 +13,7 @@ namespace eval badwords {
 	namespace export processline
 	namespace ensemble create
 	
-	proc processline {nickname handle handle channel text} {
+	proc processline {nickname hostname handle channel text} {
 		set li [list]
 		if {[channel get $channel service_badword] && [set words [string tolower [channel get $channel service_badwords]]] != "" && ![matchattr $handle nm|nmo $channel]} {
 			foreach word [string tolower $text] {
