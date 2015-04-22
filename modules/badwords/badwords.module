@@ -10,7 +10,7 @@ namespace eval badwords {
 	setudef int service_badword_bwid
 	setudef int service_badword_bantime
 	
-	namespace export processchannel
+	namespace export processline
 	namespace ensemble create
 	
 	proc processline {nickname handle handle channel text} {
