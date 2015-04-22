@@ -2,7 +2,7 @@ namespace eval commands {
 
 	bind pubm - "*" [namespace current]::handler
 
-	variable version "1.1.4"
+	variable version "1.1.5"
 	
 	namespace export register deregister registered level2cmds cmd2level handle2level
 	namespace ensemble create
@@ -51,7 +51,7 @@ namespace eval commands {
 			# [lsearch -exact [string index $first 0] $triggers]>=0
 		} elseif {[string equal -nocase [string index $first 0] $trigger]} {
 			set lasttrigger [string index $first 0]
-			set lastcommand [string range $text 1 end]
+			set lastcommand [string range $first 1 end]
 			set lastbind $first
 			set text [join [lreplace [split $text] 0 0]]
 		} else {

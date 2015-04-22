@@ -7,6 +7,7 @@ proc op_voice_ov_cmds {nickname hostname handle channel text} {
 		putserv "NOTICE $nickname :$channel $lastcommand: I need op to do that!"
 		return
 	}
+	set command [string tolower $lastcommand]
 	set bitchmode [channel get $channel service_bitchmode]
 	if {$text eq ""} {
 		if {[string equal -nocase "op" $command] && [matchattr $handle ADnm|nmo $channel] && ![isop $nickname $channel]} {
