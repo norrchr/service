@@ -29,7 +29,7 @@ proc update_cmd {nickname hostname handle channel text} {
 			}
 			putserv "PRIVMSG $rc :end of error."
 		} else {
-			set ver [lindex [split $r] 1]
+			set vers [lindex [split $r] 1]
 			set commit [lindex [split $r] 2]
 			if {$result eq 0} {
 				putserv "NOTICE $nickname :No update(s) available for service. \($vers \{$commit\}\)"
