@@ -7,7 +7,7 @@ CODE=$?
 NCOMMIT=$(git rev-parse HEAD)
 if [[ $CODE -eq 0 ]];
 then
-	if [[ $$COMMIT == $NCOMMIT ]];
+	if [[ $COMMIT == $NCOMMIT ]];
 	then
 		echo "0 $VERS $COMMIT"
 	else
