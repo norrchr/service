@@ -20,7 +20,7 @@ proc chkupdate_cmd {nickname hostname handle channel text} {
 		if {[lindex [split $r] 0] eq 1} {
 			putserv "NOTICE $nickname :Service up-to-date."
 		} else {
-			putserv "NOTICE $nickname :Service update available. ([lindex [split $r] 1])"
+			putserv "NOTICE $nickname :Service update available. ([lindex [split $r] 1] \{[lindex [split $r] 2]\})"
 		}
 	}
 }

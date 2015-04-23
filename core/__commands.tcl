@@ -44,7 +44,7 @@ namespace eval commands {
 		}
 		set first [lindex [split $text] 0]
 		if {[string equal -nocase $botnick $first]} {
-			set lasttrigger $first
+			set lasttrigger "$first "
 			set lastcommand [lindex [split $text] 1]
 			set lastbind "$first $lastcommand"
 			set text [join [lreplace [split $text] 0 1]]

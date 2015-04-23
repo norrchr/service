@@ -2,4 +2,17 @@
 # 1=up-to-date 0=needs update
 VERS=$(curl https://raw.githubusercontent.com/r0t3n/service/master/core/__version.tcl --silent | egrep -ie "variable vers(major|minor|bugfix)" | tr -d \" | awk '{print $3}' | awk '{getline b;getline c;printf("%s.%s.%s\n",$0,b,c)}')
 COMMIT=$(git rev-parse HEAD)
-[ "`git log --pretty=%H ...refs/heads/master^ | head -n 1`" = "`git ls-remote origin -h refs/heads/master |cut -f1`" ] && echo "1 $VERS $COMMIT" || echo "0 $VERS $COMMIT"
+RESULT=$(git pull)
+CODE=$?
+NCOMMIT=$(git rev-parse HEAD)
+if [[ $CODE -eq 0 ]];
+then
+	if [[ $COMMIT -eq $NCOMMIT ]]; 
+	then
+		echo "0 $VERS $COMMIT"
+	else
+		echo "1 $VERS $NCOMMIT"
+	fi
+else
+	echo "-1 $RESULT"
+fi
