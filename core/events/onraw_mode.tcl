@@ -140,7 +140,7 @@ proc onraw_mode {from raw arg {lookup 0}} {
 	#}
 	set reop 0
 	##putlog "onraw_mode: $nickname @ $channel reop = $reop"
-	if {$authname != "" && [validuser $authname] && [getuser $authname xtra isauth] eq 1} { set handle $authname }
+	#if {$authname != "" && [validuser $authname] && [getuser $authname xtra isauth] eq 1} { set handle $authname }
 	set flags [expr {[channel get $channel service_prot_hard] ? "ADnNS|nmS" : "ADnNS|nmoS"}]
 	set known [matchattr $handle $flags $channel]
 	set bitchmode [channel get $channel service_bitchmode]

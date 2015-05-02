@@ -46,6 +46,8 @@ proc adduser_cmd {nickname hostname handle channel text} {
 		putserv "NOTICE $nickname :ERROR: User '$who' is not on any of my channels."; return
 	} elseif {[validuser [nick2hand $who]]} {
 		putserv "NOTICE $nickname :ERROR: User '$who' is already added as '[nick2hand $who]' - please use the ACCESS command to further modify access."; return
+	} elseif {[validuser $hand]} {
+		putserv "NOTICE $nickname :ERROR: Handle '$hand' is already inuse by another user - please use another handle."; return
 	} elseif {[string length $hand] <= 2 && [string length $hand] > 9} {
 		putserv "NOTICE $nickname :ERROR: Handle length must be between 2 to 9 characters long."; return
 	} elseif {[getchanhost $who] == ""} {
