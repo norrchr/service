@@ -40,10 +40,9 @@ proc onraw_kick {from raw arg {lookup 0}} {
 	if {[string match -nocase *users.quakenet.org [set hostname *!*$hostname]]} {
 		set hostname *!*@[lindex [split $hostname @] 1]
 	}
-	if {$hostname == "*!*@" || $hostname == "*!*@*" || $hostname == "*!**@*" || $hostname == "*!**@"} { 
-		#putloglev do "kickprot: (bad banmask: $hostname) $nickname [getchanhost $nickname $channel] $handle $channel $target $reason"
-		return 0
-	}
+	set ban 1
+	if {$hostname == "*!*@" || $hostname == "*!*@*" || $hostname == "*!**@*" || $hostname == "*!**@"} { set ban 0 }
+	if {$ban && ![validbanmask $hostname]} { set ban 0 }
 	if {[isbotnick $target]} {
 		#putquick "PRIVMSG $service :CHANFLAGS $channel +b-p"
 		putquick "PRIVMSG $service :RECOVER $channel" -next
@@ -60,10 +59,16 @@ proc onraw_kick {from raw arg {lookup 0}} {
 		regsub -all :id: $kmsg "$id" kmsg
 		regsub -all :homechan: $kmsg "$homechan" kmsg
 		if {[botisop $channel] && [onchan $nickname $channel]} {
-			putquick "MODE $channel -o+b $nickname $hostname"
+			if {$ban} {
+				putquick "MODE $channel -o+b $nickname $hostname"
+			} else {
+				putquick "MODE $channel -o $nickname"
+			}
 			putquick "KICK $channel $nickname :$kmsg"
 		}
-		newchanban $channel $hostname $botnick "$kmsg" 120
+		if {$ban} {
+			newchanban $channel $hostname $botnick "$kmsg" 120
+		}
 		#putquick "PRIVMSG $service :CHANFLAGS $channel -b+p"
 	} else {
 		set violate "\002\037kick\037 anyone\002"
@@ -75,15 +80,17 @@ proc onraw_kick {from raw arg {lookup 0}} {
 		regsub -all :channel: $kmsg "$channel" kmsg
 		regsub -all :id: $kmsg "$id" kmsg
 		regsub -all :homechan: $kmsg "$homechan" kmsg
-		if {$hostname == "*!*@" || $hostname == "*!*@*" || $hostname == "*!**@*" || $hostname == "*!**@"} { 
-			#putloglev do "kickprot: (bad banmask: $hostname) $nickname [getchanhost $nickname $channel] $handle $channel $target $reason"
-			return
-		}
 		if {[botisop $channel] && [onchan $nickname $channel]} {
-			putquick "MODE $channel -o+b $nickname $hostname"
+			if {$ban} {
+				putquick "MODE $channel -o+b $nickname $hostname"
+			} else {
+				putquick "MODE $channel -o $nickname"
+			}
 			putquick "KICK $channel $nickname :$kmsg"
 		}
-		newchanban $channel $hostname $botnick "$kmsg" 120
+		if {$ban} {
+			newchanban $channel $hostname $botnick "$kmsg" 120
+		}
 	}
 	return 0
 }

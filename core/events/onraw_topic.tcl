@@ -82,12 +82,18 @@ proc onraw_topic {from raw arg {lookup 0}} {
 		regsub -all :channel: $kmsg "$channel" kmsg
 		regsub -all :id: $kmsg "$id" kmsg
 		regsub -all :homechan: $kmsg "$homechan" kmsg
-		if {$hostname == "*!*@" || $hostname == "*!*@*" || $hostname == "*!**@*" || $hostname == "*!**@"} { 
-			putlog "Topicprot: (bad banmask: $hostname) $nickname [getchanhost $nickname $channel] $handle $channel $topic"; return
-		}
+		set ban 1
+		if {$hostname == "*!*@" || $hostname == "*!*@*" || $hostname == "*!**@*" || $hostname == "*!**@"} { set ban 0 }
+		if {$ban && ![validbanmask $hostname]} { set ban 0 }
 		if {[botisop $channel] && [onchan $nickname $channel]} {
-			putquick "MODE $channel -o+b $nickname $hostname"
+			if {$ban} {
+				putquick "MODE $channel -o+b $nickname $hostname"
+			} else {
+				putquick "MODE $channel -o $nickname"
+			}
 			putquick "KICK $channel $nickname :$kmsg"
+		}
+		if {$ban} {
 			newchanban $channel $hostname $botnick "$kmsg" 120
 		}
 		if {[set topc [channel get $channel service_topic_current]] != ""} {

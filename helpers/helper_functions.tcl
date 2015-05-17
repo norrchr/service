@@ -150,9 +150,10 @@ proc helper_list_channelcmds_byhandle {channel handle} {
 
 proc helper_xtra_set {what handle arg} {
 	if {![validuser $handle]} { return }
+	if {![string is integer [getuser $handle XTRA cmdcount]]} { setuser $handle XTRA cmdcount 0 }
 	if {$what == "lastcmd"} {
 		setuser $handle XTRA lastcmd "$arg"
-		setuser $handle XTRA lastcmdset "[clock seconds]"
-		setuser $handle XTRA cmdcount "[expr {[getuser $handle XTRA cmdcount]+1}]"
+		setuser $handle XTRA lastcmdset [clock seconds]
+		setuser $handle XTRA cmdcount [expr {[getuser $handle XTRA cmdcount]+1}]
 	}
 }

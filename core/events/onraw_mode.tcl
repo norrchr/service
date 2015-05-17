@@ -351,7 +351,9 @@ proc onraw_mode {from raw arg {lookup 0}} {
 				putquick "KICK $channel $nickname :$kmsg" -next
 			}
 		}
-		newchanban $channel $hostname $botnick "$kmsg" 120
+		if {$ban} {
+			newchanban $channel $hostname $botnick "$kmsg" 120
+		}
 	} elseif {$reop} {
 		if {[botisop $channel] && [onchan $nickname $channel] && ![isop $nickname $channel]} {
 			lappend domode "+o $nickname"
