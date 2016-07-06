@@ -43,27 +43,27 @@ namespace eval service {
 	} else { 
 		putlog "Service.tcl - $version - Couldn't load '$configfile' as a configuration file - error: $error"
 		die "Service.tcl - $version - Couldn't load '$configfile' as a configuration file - error: $error"
-	}	
-	
+	}
+
 	# load binds
 	source scripts/service/core/__binds.tcl
 
 	# load setudefs
 	source scripts/service/core/__setudef.tcl
-		
+
 	# core __init__
 	# loads event handlers
 	source scripts/service/core/__init__.tcl
-	
+
 	# helper functions
 	source scripts/service/helpers/helper_functions.tcl
-	
+
 	source scripts/service/core/__findusers.tcl
-	source scripts/service/core/__levels.tcl	
+	source scripts/service/core/__levels.tcl
 	source scripts/service/core/__duration.tcl
-	source scripts/service/core/__validbanmask.tcl	
+	source scripts/service/core/__validbanmask.tcl
 	source scripts/service/core/__infomode.tcl
-	
+
 	proc dnslookup_ban {ipaddr hostname status mask nickname handle channel time reason lastbind} {
 		if {$status == 0} {
 			putserv "NOTICE $nickname :BAN: DNS lookup failed for '$mask'."; return

@@ -1,3 +1,5 @@
+package require inifile 0.2.3
+
 proc helper_loadini_cmd {file} {
 	global botnick altnick
 	variable cmdlist; variable cmdhelp; variable script

@@ -1,5 +1,7 @@
 proc onraw_invite {from raw arg} {
-	global botnick; variable adminchan; variable homechan
+	global botnick
+	set homechan [getconf core homechan]
+	set adminchan [getconf core adminchan]
 	set nickname [lindex [split $from !] 0]
 	set hostname [lindex [split $from !] 1]
 	if {[string equal -nocase $botnick [lindex [split $arg] 0]] && [string index [set channel [lindex [split $arg] 1]] 0] == "#"} {

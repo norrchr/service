@@ -107,7 +107,8 @@ proc enforcedmode {channel mode} {
 }
 
 proc onraw_mode {from raw arg {lookup 0}} {
-	variable homechan; global botnick botname server
+	global botnick botname server
+	set homechan [getconf core homechan]
 	set nickname [string trimleft [lindex [split $from !] 0] :]
 	set hostname [string trimleft [lindex [split $from !] 1] ~]
 	set channel [string trimleft [lindex [split $arg] 0] :]
@@ -332,7 +333,7 @@ proc onraw_mode {from raw arg {lookup 0}} {
 		if {$hostname == "*!*@" || $hostname == "*!*@*" || $hostname == "*!**@*" || $hostname == "*!**@"} { set ban 0 }
 		if {$ban && ![validbanmask $hostname]} { set ban 0 }
 		if {[set kmsg [channel get $channel service_kickmsg_protkick]] == ""} {
-			channel set $channel service_kickmsg_protkick [set kmsg $kickmsg(protkick)]
+			channel set $channel service_kickmsg_protkick [set kmsg [getconf kickmsg protection]]
 		}
 		channel set $channel service_kid [set id [expr {[channel get $channel service_kid] + 1}]]
 		set map [list]

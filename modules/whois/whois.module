@@ -16,7 +16,8 @@ namespace eval whois {
 	array set timer {}
 	array set results {}
 	
-	variable globnonblock [list {authname processauthname :results:}]
+	;variable globnonblock [list {authname processauthname :results:}]
+	variable globnonblock [list]
 	variable globblock [list]
 	
 	variable channonblock [list]
@@ -147,9 +148,11 @@ namespace eval whois {
 					#putlog "Calling chanblock $nickname @ $chk -> $func"
 					#putlog "ARGS: $args -> [processargs $args [array get res]]"
 					if {[set r [service $chk $func [expr {$args == "" ? "" : [processargs $args [array get res]]}]]]} {
-						#putlog "BLOCKED? $r"; break
+						#putlog "BLOCKED? $r"
+						break
 					} else {
-						#putlog "BLOCKED? $r"; continue
+						#putlog "BLOCKED? $r"
+						continue
 					}
 				}
 			}

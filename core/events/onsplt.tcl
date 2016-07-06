@@ -1,5 +1,5 @@
 proc onsplt {nickname hostname handle channel} {
-	variable netsplit_start
+	set netsplit_start [getconf netsplit start]
 	if {[string equal -nocase Q $nickname] && ![channel get $channel service_netsplit]} {
 		channel set $channel +service_netsplit
 		channel set $channel service_netsplit_time "[unixtime]"

@@ -1,5 +1,6 @@
 proc onjoin {nickname hostname handle channel} {
-	variable onjoin; variable kickmsg; variable homechan; variable welcomeskin
+	variable onjoin
+	set homechan [getconf core homechan]
 	# channel peak
 	if {[channel get $channel service_peak] && [set peak [channel get $channel service_peak_count]]<[set count [llength [chanlist $channel]]]} {
 		channel set $channel service_peak_count [set peak $count]
@@ -47,7 +48,7 @@ proc onjoin {nickname hostname handle channel} {
 			set hostname *!*@[lindex [split $hostname @] 1]
 		}
 		if {[set kickmsg [channel get $channel service_kickmsg_known]] == ""} {
-			channel set $channel service_kickmsg_known "[set kmsg "$kickmsg(known)"]"
+			channel set $channel service_kickmsg_known "[set kmsg [getconf kickmsg known]]"
 		}
 		channel set $channel service_kid_known "[set id [expr {[channel get $channel service_kid_known] + 1}]]"
 		regsub -all :channel: $kmsg "$channel" kmsg
@@ -65,7 +66,7 @@ proc onjoin {nickname hostname handle channel} {
 		set max [channel get $channel service_clonescan_maxclones]
 		set hostname [string trimleft $hostname ~]
 		set hostname [expr {$type ? "*!*@[lindex [split $hostname @] 1]" : "*!*$hostname"}]
-		set list [list]       
+		set list [list]
 		foreach user [chanlist $channel] {       
 			set host [string trimleft [getchanhost $user $channel] ~]
 			set host [expr {$type ? "*!*@[lindex [split $host @] 1]" : "*!*$host"}]		
@@ -76,7 +77,7 @@ proc onjoin {nickname hostname handle channel} {
 		if {[llength $list] >= $max} {
 			if {[botisop $channel]} {
 				channel set $channel service_kid "[set id [expr {[channel get $channel service_kid] + 1}]]"
-				regsub -all :clones: $kickmsg(clonescan) "[llength $list]" kmsg
+				regsub -all :clones: [getconf kickmsg clonescan] "[llength $list]" kmsg
 				regsub -all :maxclones: $kmsg "[channel get $channel service_clonescan_maxclones]" kmsg
 				regsub -all :hostname: $kmsg "$hostname" kmsg
 				regsub -all :channel: $kmsg "$channel" kmsg
@@ -106,9 +107,8 @@ proc onjoin {nickname hostname handle channel} {
 				set hostname *!*@[lindex [split $hostname @] 1]
 			}
 			if {[channel get $channel service_kickmsg_defaultban] == ""} {
-				channel set $channel service_kickmsg_defaultban "$kickmsg(defaultban)"
+				channel set $channel service_kickmsg_defaultban [set kmsg [getconf kickmsg defaultban]]
 			}
-			set kmsg [channel get $channel service_kickmsg_defaultban]
 			channel set $channel service_kid "[set id [expr {[channel get $channel service_kid] + 1}]]"
 			regsub -all :channel: $kmsg $channel kmsg
 			regsub -all :id: $kmsg $id kmsg
@@ -174,7 +174,7 @@ proc onjoin {nickname hostname handle channel} {
 	# Welcome
 	if {[channel get $channel service_welcome] && ![isbotnick $nickname]} {
 		if {[set skin [channel get $channel service_welcome_skin]] == ""} {
-			channel set $channel service_welcome_skin "[set skin $welcomeskin]"
+			channel set $channel service_welcome_skin [set skin [getconf welcome skin]]
 		}
 		regsub -all :nickname: $skin "$nickname" skin
 		regsub -all :hostname: $skin "$hostname" skin

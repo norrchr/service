@@ -1,5 +1,6 @@
 proc onraw_topic {from raw arg {lookup 0}} {
-	global botnick server; variable kickmsg; variable homechan
+	global botnick server
+	set homechan [getconf core homechan]
 	set channel [lindex [split $arg] 0]
 	set nickname [lindex [split $from !] 0]
 	set hostname [lindex [split $from !] 1]
@@ -75,7 +76,7 @@ proc onraw_topic {from raw arg {lookup 0}} {
 			set hostname *!*@[lindex [split $hostname @] 1]
 		}
 		if {[set kmsg [channel get $channel service_kickmsg_protkick]] == ""} {
-			channel set $channel service_kickmsg_protkick [set kmsg $kickmsg(protkick)]
+			channel set $channel service_kickmsg_protkick [set kmsg [getconf kickmsg protection]]
 		}
 		channel set $channel service_kid [set id [expr {[channel get $channel service_kid] + 1}]]
 		regsub -all :violate: $kmsg "\002\037change the topic\037\002" kmsg

@@ -1,5 +1,7 @@
 proc onneed {channel type} {
-	variable homechan; variable adminchan; variable helpchan
+	set homechan [getconf core homechan]
+	set adminchan [getconf core adminchan]
+	set helpchan [getconf core helpchan]
 	switch -exact -- $type {
 		"op" {
 			if {[string equal -nocase $homechan $channel]} { return 0 }

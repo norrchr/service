@@ -1,5 +1,6 @@
 proc onraw_kick {from raw arg {lookup 0}} {
-	global botnick server; variable kickmsg; variable homechan
+	global botnick server
+	set homechan [getconf core homechan]
 	set nickname [lindex [split $from !] 0]
 	set hostname [string trimleft [lindex [split $from !] 1] ~]
 	set channel [lindex [split $arg] 0]
@@ -7,7 +8,7 @@ proc onraw_kick {from raw arg {lookup 0}} {
 	if {[isbotnick $nickname] || $nickname == "" || [string equal -nocase $nickname $target] || ![channel get $channel service_prot] || [channel get $channel service_startup] || ([string equal -nocase [lindex [split $server :] 0] $hostname] && $nickname == "")} { return 0 }
 	set hostname [string trimleft [lindex [split $from !] 1] ~]
 	#set authname [service authname nick2auth $nickname]
-	set handle [nick2hand $nickname]		
+	set handle [nick2hand $nickname]
 	#if {$handle == "*" && $authname == "" && $lookup == 0} {
 	#	putlog "onraw_kick: Performing auth lookup for $nickname @ $channel"
 	#	if {[set op [isop $nickname $channel]]} {
@@ -51,7 +52,7 @@ proc onraw_kick {from raw arg {lookup 0}} {
 		putquick "PRIVMSG $service :OP $channel" -next
 		set violate "\002\037kick/ban\037 me\002"
 		if {[set kmsg [channel get $channel service_kickmsg_protkick]] == ""} {
-			channel set $channel service_kickmsg_protkick [set kmsg $kickmsg(protkick)]
+			channel set $channel service_kickmsg_protkick [set kmsg [getconf kickmsg protection]]
 		}
 		channel set $channel service_kid [set id [expr {[channel get $channel service_kid] + 1}]]
 		regsub -all :violate: $kmsg "$violate" kmsg
@@ -73,7 +74,7 @@ proc onraw_kick {from raw arg {lookup 0}} {
 	} else {
 		set violate "\002\037kick\037 anyone\002"
 		if {[set kmsg [channel get $channel service_kickmsg_protkick]] == ""} {
-			channel set $channel service_kickmsg_protkick [set kmsg $kickmsg(protkick)]
+			channel set $channel service_kickmsg_protkick [set kmsg [getconf kickmsg protection]]
 		}
 		channel set $channel service_kid [set id [expr {[channel get $channel service_kid] + 1}]]
 		regsub -all :violate: $kmsg "$violate" kmsg
