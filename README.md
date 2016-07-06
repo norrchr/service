@@ -5,6 +5,8 @@ service modular-git BETA version, use at your own risk, script may contain bugs 
 
 tcllib - required for the inifile package to read the config and commands file
 
+git - required for update management and distribution
+
 # Installation:
 
 cd to your eggdrop's scripts directory, and type: git clone https://github.com/r0t3n/service.git
@@ -14,6 +16,7 @@ cd service
 *** Some settings are read from the .conf and some from the .ini, best to update both until the .conf is fully phased out
 
 edit service.conf
+
 edit service.ini, changing the homechan/adminchan/helpchan values
 
 This is the minimal setup, you may go through and change the default kickmsg values, but generally dont touch anything else, especially the chanflags array.
