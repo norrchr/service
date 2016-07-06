@@ -1,7 +1,7 @@
 [core]
-homechan=#private
-adminchan=#private
-helpchan=#private
+homechan=#homechan
+adminchan=#adminchan
+helpchan=#helpchan
 trigger=$
 triggers=$ ! ? & * % ^ - + ~
 
@@ -10,8 +10,8 @@ core=1
 whois=1
 auth=0
 
-authban=0
-badchan=0
+authban=1
+badchan=1
 vip=1
 
 chanlev=1
@@ -19,7 +19,8 @@ clonescan=1
 flyby=1
 
 broadcast=0
-spamscan=0
+
+authname=0
 
 [whois]
 delay=5
@@ -32,8 +33,9 @@ bantime=120
 kickmsg=Your present on :count: badchannel(s) (:badchan:) and therefore banned from :channel: - ID: :id:
 bantime=120
 
-globnonblock=authname
-authname=processauthname :nickname: :authname:
+globnonblock=
+;globnonblock=authname
+;authname=processauthname :nickname: :authname:
 
 chanblock=authban badchan vip
 authban=processchannel :channel: :results:
@@ -41,7 +43,7 @@ badchan=processchannel :channel: :results:
 vip=processchannel :channel: :results:
 
 [script]
-path=scripts/service.tcl
+path=scripts/service/service.tcl
 
 [randomkickmsg]
 1=You're outta here!
