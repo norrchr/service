@@ -1,11 +1,3 @@
-variable homechan "#"
-variable adminchan "#"
-variable helpchan "#"
-
-channel add $homechan
-channel add $adminchan
-channel add $helpchan
-	
 variable fullpath "[pwd]/scripts/service/service.tcl"; # don't change unless you have too
 
 array set global_user_levels {
@@ -14,7 +6,7 @@ array set global_user_levels {
 	{dev} {A +D}
 	{developer} {A +D}
 	{service} {AD +Samo}
-    {owner} {n +anmovf}
+	{owner} {n +anmovf}
 	{master} {nm -n+amovf}
 	{operator} {nm -nm+aovf}
 	{op} {nm -nm+aovf}
@@ -26,7 +18,7 @@ array set global_user_levels {
 }
 
 array set channel_user_levels {
-    {owner} {n +anmovf}
+	{owner} {n +anmovf}
 	{master} {nm -n+amovf}
 	{operator} {nm -nm+aovf}
 	{op} {nm -nm+aovf}
@@ -98,7 +90,7 @@ array set bantime {
 	"default" "30"
 }
 	
-variable vipskin "15,1•12 VIP: :nickname: ( :hostname: ) 15,1•"
+variable vipskin 15,1â€12 VIP: :nickname: :hostname:15,1â€"
 variable vipmode "+"
 	
 variable trigger "\$"
@@ -142,7 +134,3 @@ array set chanflags {
 	"F" "service_flyby flyby"
 	"l" "service_autolimit autolimit"
 }
-	
-variable netsplit_start "A netsplit has been detected - Some functions have been disabled."
-	
-variable netsplit_end "The netsplit is now consider over after :time: - All functions enabled again."

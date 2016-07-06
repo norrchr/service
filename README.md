@@ -11,7 +11,12 @@ cd to your eggdrop's scripts directory, and type: git clone https://github.com/r
 
 cd service
 
-edit service.ini, changing the homechan/adminchan/helpchan values. This is the minimal setup, you may go through and change the default kickmsg values, but generally dont touch anything else, especially the chanflags array.
+*** Some settings are read from the .conf and some from the .ini, best to update both until the .conf is fully phased out
+
+edit service.conf
+edit service.ini, changing the homechan/adminchan/helpchan values
+
+This is the minimal setup, you may go through and change the default kickmsg values, but generally dont touch anything else, especially the chanflags array.
 
 Edit your eggdrops config file, and add 'source scripts/service/service.tcl' to the end of it. If the bot is loaded, rehash it, otherwise start your bot.
 
